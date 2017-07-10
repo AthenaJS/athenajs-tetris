@@ -1,4 +1,4 @@
-import { Circle, Game, Scene, Map } from 'athenajs';
+import { Circle, Game, Scene, Map, Sprite } from 'athenajs';
 
 class Tetris extends Game {
     constructor() {
@@ -8,6 +8,8 @@ class Tetris extends Game {
             width: 800,
             height: 600
         });
+
+        this.createScene();
     }
 
     createMap() {
@@ -22,7 +24,16 @@ class Tetris extends Game {
     }
 
     createScene() {
-        this.scene = new Grid();
+        const scene = new Grid();
+        scene.onStart(function () {
+            const shape = new Shape('shape', {
+                x: 0,
+                y: 0
+            });
+            debugger;
+            this.addObject(shape);
+        });
+        this.setScene(scene); 
     }
 };
 
@@ -72,7 +83,7 @@ class Shape extends Sprite {
                     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
                     [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]
                 ]
-            },
+            }/*,
             {
                 name: 'J', width: 60, height: 60, rotations: [
                     [1, 0, 0, 1, 1, 1, 0, 0, 0],
@@ -120,7 +131,7 @@ class Shape extends Sprite {
                     [0, 0, 0, 1, 1, 1, 0, 1, 0],
                     [0, 1, 0, 1, 1, 0, 0, 1, 0]
                 ]
-            },
+            }*/
         ];
 
         let offsetY = 0;
@@ -129,7 +140,7 @@ class Shape extends Sprite {
             let offsetX = 0;
             for (let i = 0; i < 4; ++i) {
                 this.addAnimation(`${shape.name}${i}`, 'img/tetris_tiles.png', {
-                    offsetY: offset, offsetX: offsetX, frameWidth: shape.width, frameHeight: shape.height, frameDuration: 1, numFrames: 1
+                    offsetY: offsetY, offsetX: offsetX, frameWidth: shape.width, frameHeight: shape.height, frameDuration: 1, numFrames: 1
                 });
                 offsetX += shape.width;
             }
@@ -137,12 +148,6 @@ class Shape extends Sprite {
         });
     }
 }
+const tetris = new Tetris();
 
-tetris.setScene(scene);
-
-scene.onStart(function () {
-    const shape = new Shape('shape', {
-        x: 0,
-        y: 0
-    });
-});
+// tetris.setScene(scene);
