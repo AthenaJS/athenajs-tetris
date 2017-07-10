@@ -65,13 +65,62 @@ class Shape extends Sprite {
 
     addAnimations() {
         const sprites = [
-            { name: 'I', width: 80, height: 80 },
-            { name: 'L', width: 60, height: 60 },
-            { name: 'LF', width: 60, height: 60 },
-            { name: 'S', width: 80, height: 60 },
-            { name: 'Z', width: 60, height: 60 },
-            { name: 'ZF', width: 60, height: 60 },
-            { name: 'T', width: 60, height: 60 }
+            {
+                name: 'I', width: 80, height: 80, rotations: [
+                    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]
+                ]
+            },
+            {
+                name: 'J', width: 60, height: 60, rotations: [
+                    [1, 0, 0, 1, 1, 1, 0, 0, 0],
+                    [0, 1, 1, 0, 1, 0, 0, 1, 0],
+                    [0, 0, 0, 1, 1, 1, 0, 0, 1],
+                    [0, 1, 0, 0, 1, 0, 1, 1, 1]
+                ]
+            },
+            {
+                name: 'L', width: 60, height: 60, rotations: [
+                    [0, 0, 1, 1, 1, 1, 0, 0, 0],
+                    [0, 1, 0, 0, 1, 0, 0, 1, 1],
+                    [0, 0, 0, 1, 1, 1, 1, 0, 0],
+                    [1, 1, 0, 0, 1, 0, 0, 1, 0]
+                ]
+            },
+            {
+                name: 'O', width: 80, height: 60, rotations: [
+                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0]
+                ]
+            },
+            {
+                name: 'S', width: 60, height: 60, rotations: [
+                    [0, 1, 1, 1, 1, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 1, 1, 0, 0, 1],
+                    [0, 0, 0, 0, 1, 1, 1, 1, 0],
+                    [1, 0, 0, 1, 1, 0, 0, 1, 0]
+                ]
+            },
+            {
+                name: 'T', width: 60, height: 60, rotations: [
+                    [1, 1, 0, 0, 1, 1, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 1, 0, 1, 0],
+                    [0, 0, 0, 1, 1, 0, 0, 1, 1],
+                    [0, 1, 0, 1, 1, 0, 1, 0, 0]
+                ]
+            },
+            {
+                name: 'Z', width: 60, height: 60, rotations: [
+                    [0, 1, 0, 1, 1, 1, 0, 0, 0],
+                    [0, 1, 0, 0, 1, 1, 0, 1, 0],
+                    [0, 0, 0, 1, 1, 1, 0, 1, 0],
+                    [0, 1, 0, 1, 1, 0, 0, 1, 0]
+                ]
+            },
         ];
 
         let offsetY = 0;
@@ -92,5 +141,8 @@ class Shape extends Sprite {
 tetris.setScene(scene);
 
 scene.onStart(function () {
-    const shape = new Shape();
+    const shape = new Shape('shape', {
+        x: 0,
+        y: 0
+    });
 });
