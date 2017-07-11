@@ -1,6 +1,6 @@
-import Scene from 'athenajs';
+import { Scene } from 'athenajs';
 
-class Grid extends Scene {
+export default class Grid extends Scene {
     constructor() {
         super({
             ressources: [{

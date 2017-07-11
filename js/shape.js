@@ -1,4 +1,4 @@
-import Sprite from 'athenajs';
+import { Sprite } from 'athenajs';
 
 export default class Shape extends Sprite {
     constructor() {
@@ -25,7 +25,7 @@ export default class Shape extends Sprite {
             },
             {
                 name: 'J', width: 60, height: 60, rotations: [
-                    [ 1, 0, 0, 1, 1, 1, 0, 0, 0],
+                    [1, 0, 0, 1, 1, 1, 0, 0, 0],
                     [0, 1, 1, 0, 1, 0, 0, 1, 0],
                     [0, 0, 0, 1, 1, 1, 0, 0, 1],
                     [0, 1, 0, 0, 1, 0, 1, 1, 0]

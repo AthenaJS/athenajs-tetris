@@ -1,5 +1,6 @@
 import { Game, Map } from 'athenajs';
 import Shape from 'shape';
+import Grid from 'grid';
 
 class Tetris extends Game {
     constructor() {
@@ -34,7 +35,7 @@ class Tetris extends Game {
             debugger;
             this.addObject(shape);
         });
-        this.setScene(scene); 
+        this.setScene(scene);
     }
 };
 
