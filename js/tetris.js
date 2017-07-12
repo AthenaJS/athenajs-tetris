@@ -14,17 +14,6 @@ class Tetris extends Game {
         this.createScene();
     }
 
-    createMap() {
-        return new Map({
-            src: 'tiles',
-            tileWidth: 32,
-            tileHeight: 32,
-            width: 200,
-            height: 400,
-            buffer: new ArrayBuffer(200 * 400 * 2)
-        });
-    }
-
     createScene() {
         const scene = new Grid();
         scene.onStart(function () {
