@@ -18,6 +18,11 @@ module.exports = {
                 test: /\.js$/,
                 loader: 'babel-loader?presets[]=es2015',
                 exclude: /node_modules|athena\.js/
+            },
+            {
+                test: /athena\.js$/,
+                use: ["source-map-loader"],
+                enforce: "pre"
             }
         ]
     },
@@ -38,7 +43,7 @@ module.exports = {
         new WebpackNotifierPlugin({
             alwaysNotify: true,
             skipFirstNotification: true,
-            title: 'AthenaJS-Samples'
+            title: 'AthenaJS-Tetris'
         })
     ]
 };

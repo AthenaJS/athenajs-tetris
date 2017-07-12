@@ -12,8 +12,8 @@ export default class Grid extends Scene {
     }
 
     createMap() {
-        try{
-            return new Map({
+        try {
+            const map = new Map({
                 src: 'tiles',
                 tileWidth: 20,
                 tileHeight: 20,
@@ -21,7 +21,18 @@ export default class Grid extends Scene {
                 height: 400,
                 buffer: new ArrayBuffer(200 * 400 * 2)
             });
-        } catch(err) {
+
+            const tiles = map._createTiles([{
+                offsetX: 140,
+                offsetY: 440,
+                width: 20,
+                height: 20
+            }]);
+
+            map.tiles = tiles;
+
+            return map;
+        } catch (err) {
             debugger;
         }
     }
