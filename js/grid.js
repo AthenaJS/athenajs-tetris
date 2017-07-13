@@ -22,14 +22,12 @@ export default class Grid extends Scene {
                 buffer: new ArrayBuffer(200 * 400 * 2)
             });
 
-            const tiles = map._createTiles([{
+            map.setTiles([{
                 offsetX: 140,
                 offsetY: 440,
                 width: 20,
                 height: 20
             }]);
-
-            map.tiles = tiles;
 
             return map;
         } catch (err) {
