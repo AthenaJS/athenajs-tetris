@@ -1,4 +1,5 @@
 import { Scene, Map } from 'athenajs';
+import Shape from 'shape';
 
 export default class Grid extends Scene {
     constructor() {
@@ -19,7 +20,7 @@ export default class Grid extends Scene {
                 tileHeight: 20,
                 width: 200,
                 height: 400,
-                buffer: new ArrayBuffer(200 * 400 * 2)
+                buffer: new ArrayBuffer(10 * 20 * 2)
             });
 
             map.setTiles([{
@@ -35,15 +36,25 @@ export default class Grid extends Scene {
         }
     }
 
+    createShape() {
+        return new Shape('shape', {
+            x: 0,
+            y: 0
+        });
+    }
+
     onLoad() {
         debugger;
         this.rotate = 0;
         this.score = 0;
 
-        this.shape = null;
+        debugger;
+        this.shape = this.createShape();
         this.nextShape = null;
 
         this.setMap(this.createMap(), 300, 100);
+
+        this.map.addObject(this.shape);
     }
 
     startGame() {
