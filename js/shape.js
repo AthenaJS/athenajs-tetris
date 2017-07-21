@@ -1,4 +1,4 @@
-import { Sprite } from 'athenajs';
+import { Sprite, InputManager as IM } from 'athenajs';
 
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
@@ -11,6 +11,14 @@ export default class Shape extends Sprite {
 
     setShape(name, rotation) {
         this.setAnimation(`${name}${rotation}`);
+    }
+
+    move() {
+        if (IM.isKeyDown('LEFT')) {
+            console.log('need to move to the left');
+        } else if (IM.isKeyDown('RIGHT')) {
+            console.log('need to move to the right')
+        }
     }
 
     addAnimations() {
