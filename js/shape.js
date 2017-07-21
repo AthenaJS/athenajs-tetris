@@ -1,10 +1,10 @@
 import { Sprite } from 'athenajs';
 
 export default class Shape extends Sprite {
-    constructor() {
-        super('shape', {
+    constructor(name, options = {}) {
+        super('shape', Object.assign({}, {
             imageSrc: 'tiles'
-        });
+        }, options));
 
         this.addAnimations();
     }
