@@ -3,7 +3,8 @@ import { Sprite, InputManager as IM } from 'athenajs';
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
-            imageSrc: 'tiles'
+            imageSrc: 'tiles',
+            vx: 3
         }, options));
 
         this.addAnimations();
@@ -16,8 +17,10 @@ export default class Shape extends Sprite {
     move() {
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
+            this.x -= this.vx;
         } else if (IM.isKeyDown('RIGHT')) {
-            console.log('need to move to the right')
+            console.log('need to move to the right');
+            this.x += this.vx;
         }
     }
 
