@@ -44,15 +44,14 @@ export default class Grid extends Scene {
     }
 
     onLoad() {
-        debugger;
         this.rotate = 0;
         this.score = 0;
 
-        debugger;
         this.shape = this.createShape();
         this.nextShape = null;
 
         this.setMap(this.createMap(), 300, 100);
+        this.setBackgroundImage('img/background.png');
 
         this.map.addObject(this.shape);
     }
