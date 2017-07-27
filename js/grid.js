@@ -18,12 +18,12 @@ export default class Grid extends Scene {
                 src: 'tiles',
                 tileWidth: 20,
                 tileHeight: 20,
-                width: 200,
-                height: 400,
-                buffer: new ArrayBuffer(10 * 20 * 2)
+                width: 240,
+                height: 420,
+                buffer: new ArrayBuffer(12 * 21 * 2)
             });
 
-            map.setTiles([{
+            map.addTileSet([{
                 offsetX: 140,
                 offsetY: 440,
                 width: 20,
