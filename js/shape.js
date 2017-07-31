@@ -7,7 +7,9 @@ export default class Shape extends Sprite {
             vx: 3
         }, options));
 
+        debugger;
         this.addAnimations();
+        this.setShape('J', 0);
     }
 
     setShape(name, rotation) {
@@ -23,9 +25,8 @@ export default class Shape extends Sprite {
             this.x += this.vx;
         }
     }
-
-    addAnimations() {
-        const sprites = [
+    static get shapes() {
+        return [
             {
                 name: 'I', width: 80, height: 80, rotations: [
                     [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -83,10 +84,11 @@ export default class Shape extends Sprite {
                 ]
             }
         ];
-
+    }
+    addAnimations() {
         let offsetY = 0;
 
-        sprites.forEach((shape) => {
+        Shape.shapes.forEach((shape) => {
             let offsetX = 0;
             for (let i = 0; i < 4; ++i) {
                 this.addAnimation(`${shape.name}${i}`, 'img/tetris_tiles.png', {
