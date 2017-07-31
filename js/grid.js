@@ -1,4 +1,4 @@
-import { Scene, Map } from 'athenajs';
+import { Scene, Map, Tile } from 'athenajs';
 import Shape from 'shape';
 
 export default class Grid extends Scene {
@@ -23,6 +23,11 @@ export default class Grid extends Scene {
                 buffer: new ArrayBuffer(12 * 21 * 2)
             });
 
+            for (let i = 0; i < map.numRows; ++i) {
+                map.updateTile(0, i, 0, Tile.TYPE.WALL);
+                map.updateTile(map.numCols - 1, i, 0, Tile.TYPE.WALL);
+            }
+
             map.addTileSet([{
                 offsetX: 140,
                 offsetY: 440,
@@ -38,7 +43,7 @@ export default class Grid extends Scene {
 
     createShape() {
         return new Shape('shape', {
-            x: 0,
+            x: 20,
             y: 0
         });
     }
