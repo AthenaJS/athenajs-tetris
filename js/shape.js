@@ -3,8 +3,7 @@ import { Sprite, InputManager as IM } from 'athenajs';
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
-            imageSrc: 'tiles',
-            vx: 3
+            imageSrc: 'tiles'
         }, options));
 
         debugger;
@@ -25,6 +24,8 @@ export default class Shape extends Sprite {
             console.log('need to move to the right');
             this.vx = 3;
             this.cancelMoveTo();
+        } else {
+            this.vx = 0;
         }
 
         super.move();
