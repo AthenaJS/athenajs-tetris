@@ -19,12 +19,17 @@ export default class Shape extends Sprite {
     move() {
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
-            this.x -= this.vx;
+            this.vx = -3;
+            this.cancelMoveTo();
         } else if (IM.isKeyDown('RIGHT')) {
             console.log('need to move to the right');
-            this.x += this.vx;
+            this.vx = 3;
+            this.cancelMoveTo();
         }
+
+        super.move();
     }
+
     static get shapes() {
         return [
             {
