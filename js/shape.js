@@ -1,10 +1,12 @@
-import { Sprite, InputManager as IM, Tile } from 'athenajs';
+import { Sprite } from 'athenajs';
+import ShapeBehavior from 'shape_behavior';
 
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
             imageSrc: 'tiles',
-            easing: 'easeInQuad'
+            easing: 'easeInQuad',
+            behavior: ShapeBehavior
         }, options));
 
         debugger;

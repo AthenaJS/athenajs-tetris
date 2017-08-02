@@ -1,5 +1,4 @@
-import Behavior from 'Object/Behavior/Behavior';
-import Tile from 'Map/Tile';
+import { Behavior, Tile, InputManager as IM } from 'athenajs';
 
 /*jshint devel: true, bitwise: false*/
 // by default
@@ -14,7 +13,7 @@ import Tile from 'Map/Tile';
  * 
  * @see {Behavior}
  */
-class ShapeMove extends Behavior {
+class ShapeBehavior extends Behavior {
     constructor(sprite, Input, options) {
         super(sprite, Input, options);
 
@@ -32,25 +31,26 @@ class ShapeMove extends Behavior {
         
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
-            sprite.vx = map.getMaxDistanceToTile(this, -3, Tile.TYPE.WALL);
+            sprite.vx = map.getMaxDistanceToTile(sprite, -3, Tile.TYPE.WALL);
             sprite.cancelMoveTo();
 
             this.state = -1;
         } else if (IM.isKeyDown('RIGHT')) {
             console.log('need to move to the right');
-            sprite.vx = map.getMaxDistanceToTile(this, 3, Tile.TYPE.WALL);
+            sprite.vx = map.getMaxDistanceToTile(sprite, 3, Tile.TYPE.WALL);
             sprite.cancelMoveTo();
 
             this.state = 1;
         } else if (this.state) {
             sprite.vx = 0;
-            
+
             this.state = 0;
+
+            // TODO: snap to left/right tile
         }
 
-        this.x += this.vx;
+        sprite.x += sprite.vx;
     }
 }
 
-export default GroundMove;
-
+export default ShapeBehavior;
