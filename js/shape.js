@@ -30,11 +30,11 @@ export default class Shape extends Sprite {
     move(timestamp) {
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
-            this.vx = -3;
+            this.vx = this.map.getMaxDistanceToTile(this, -3, Tile.TYPES.WALL);
             this.cancelMoveTo();
         } else if (IM.isKeyDown('RIGHT')) {
             console.log('need to move to the right');
-            this.vx = 3;
+            this.vx = this.map.getMaxDistanceToTile(this, 3, Tile.TYPES.WALL);
             this.cancelMoveTo();
         } else {
             this.vx = 0;
