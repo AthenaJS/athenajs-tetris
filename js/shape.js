@@ -3,7 +3,8 @@ import { Sprite, InputManager as IM } from 'athenajs';
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
-            imageSrc: 'tiles'
+            imageSrc: 'tiles',
+            easing: 'easeInQuad'
         }, options));
 
         debugger;
@@ -15,7 +16,7 @@ export default class Shape extends Sprite {
         this.setAnimation(`${name}${rotation}`);
     }
 
-    move() {
+    move(timestamp) {
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
             this.vx = -3;
@@ -28,7 +29,7 @@ export default class Shape extends Sprite {
             this.vx = 0;
         }
 
-        super.move();
+        super.move(timestamp);
     }
 
     static get shapes() {
