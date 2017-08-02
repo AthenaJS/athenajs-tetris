@@ -13,7 +13,18 @@ export default class Shape extends Sprite {
     }
 
     setShape(name, rotation) {
+        this.shape = name;
+        this.rotation = rotation;
         this.setAnimation(`${name}${rotation}`);
+    }
+
+    nextRotation() {
+        this.rotation++;
+        if (this.rotation > 3) {
+            this.rotation = 0;
+            // TODO: check that rotation is possible
+        }
+        this.setShape(this.shape, this.rotation);
     }
 
     move(timestamp) {
