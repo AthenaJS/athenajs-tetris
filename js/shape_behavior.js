@@ -18,7 +18,7 @@ class ShapeBehavior extends Behavior {
         super(sprite, Input, options);
 
         // behavior properties can be defined here
-        this.state = 0;        
+        this.state = 0;
     }
 
     /**
@@ -28,19 +28,30 @@ class ShapeBehavior extends Behavior {
     onMove(timestamp) {
         const sprite = this.sprite,
             map = sprite.currentMap;
-        
+
         if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
-            sprite.vx = map.getMaxDistanceToTile(sprite, -3, Tile.TYPE.WALL);
-            sprite.cancelMoveTo();
+            // sprite.vx = map.getMaxDistanceToTile(sprite, -3, Tile.TYPE.WALL);
+            // sprite.cancelMoveTo();
+            // 1. can we move in this direction?
+            const buffer = sprite.getShapeMatrix();
 
-            this.state = -1;
+            if (!map.checkMatrixForCollision(buffer, 20, sprite.x - 1, sprite.y, Tile.TYPES.WALL)) {
+                const pos = map.getTilePos(sprite.x - 1, sprite.y);
+                sprite.moveTo(pos.y * map.tileHeight + pos.x * map.tileWidth, 1200);
+            }
+            // 2. yes => get next position
+            // 3 moveTo(nextPosition)
+            // this.state = -1;
         } else if (IM.isKeyDown('RIGHT')) {
             console.log('need to move to the right');
-            sprite.vx = map.getMaxDistanceToTile(sprite, 3, Tile.TYPE.WALL);
-            sprite.cancelMoveTo();
-
-            this.state = 1;
+            if (!map.checkMatrixForCollision(buffer, 20, sprite.x + 1, sprite.y, Tile.TYPES.WALL)) {
+                const pos = map.getTilePos(sprite.x + 1, sprite.y);
+                sprite.moveTo(pos.y * map.tileHeight + pos.x * map.tileWidth, 1200);
+            }
+            // sprite.vx = map.getMaxDistanceToTile(sprite, 3, Tile.TYPE.WALL);
+            // sprite.cancelMoveTo();
+            // this.state = 1;
         } else if (this.state) {
             sprite.vx = 0;
 
@@ -49,7 +60,7 @@ class ShapeBehavior extends Behavior {
             // TODO: snap to left/right tile
         }
 
-        sprite.x += sprite.vx;
+        // sprite.x += sprite.vx;
     }
 }
 

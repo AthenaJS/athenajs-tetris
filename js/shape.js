@@ -5,32 +5,11 @@ export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
             imageSrc: 'tiles',
-            easing: 'easeInQuad',
+            easing: 'linear',
             behavior: ShapeBehavior
         }, options));
 
-        debugger;
-        this.addAnimations();
-        this.setShape('J', 0);
-    }
-
-    setShape(name, rotation) {
-        this.shape = name;
-        this.rotation = rotation;
-        this.setAnimation(`${name}${rotation}`);
-    }
-
-    nextRotation() {
-        this.rotation++;
-        if (this.rotation > 3) {
-            this.rotation = 0;
-            // TODO: check that rotation is possible
-        }
-        this.setShape(this.shape, this.rotation);
-    }
-
-    static get shapes() {
-        return [
+        this.shapes = [
             {
                 name: 'I', width: 80, height: 80, rotations: [
                     [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -88,11 +67,35 @@ export default class Shape extends Sprite {
                 ]
             }
         ];
+
+        debugger;
+        this.addAnimations();
+        this.setShape('J', 0);
     }
+
+    setShape(name, rotation) {
+        this.shape = name;
+        this.rotation = rotation;
+        this.setAnimation(`${name}${rotation}`);
+    }
+
+    getShapeMatrix() {
+        return this.shapes[this.shape][this.rotation];
+    }
+
+    nextRotation() {
+        this.rotation++;
+        if (this.rotation > 3) {
+            this.rotation = 0;
+            // TODO: check that rotation is possible
+        }
+        this.setShape(this.shape, this.rotation);
+    }
+
     addAnimations() {
         let offsetY = 0;
 
-        Shape.shapes.forEach((shape) => {
+        this.shapes.forEach((shape) => {
             let offsetX = 0;
             for (let i = 0; i < 4; ++i) {
                 this.addAnimation(`${shape.name}${i}`, 'img/tetris_tiles.png', {
