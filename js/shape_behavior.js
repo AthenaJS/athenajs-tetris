@@ -17,8 +17,10 @@ class ShapeBehavior extends Behavior {
     constructor(sprite, Input, options) {
         super(sprite, Input, options);
 
-        // behavior properties can be defined here
+        // current behavior state
         this.state = 0;
+        // when lastRotation happened
+        this.lastRotation = 0;
     }
 
     /**
@@ -36,22 +38,29 @@ class ShapeBehavior extends Behavior {
             // 1. can we move in this direction?
             const buffer = sprite.getShapeMatrix();
 
-            if (!map.checkMatrixForCollision(buffer, 20, sprite.x - 1, sprite.y, Tile.TYPES.WALL)) {
-                const pos = map.getTilePos(sprite.x - 1, sprite.y);
-                sprite.moveTo(pos.y * map.tileHeight + pos.x * map.tileWidth, 1200);
+            if (!map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x - map.tileWidth, sprite.y, Tile.TYPE.WALL)) {
+                const pos = map.getTilePos(sprite.x - map.tileWidth, sprite.y);
+                sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
             }
             // 2. yes => get next position
             // 3 moveTo(nextPosition)
             // this.state = -1;
         } else if (IM.isKeyDown('RIGHT')) {
+            const buffer = sprite.getShapeMatrix();
             console.log('need to move to the right');
-            if (!map.checkMatrixForCollision(buffer, 20, sprite.x + 1, sprite.y, Tile.TYPES.WALL)) {
-                const pos = map.getTilePos(sprite.x + 1, sprite.y);
-                sprite.moveTo(pos.y * map.tileHeight + pos.x * map.tileWidth, 1200);
+            if (!map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + map.tileWidth, sprite.y, Tile.TYPE.WALL)) {
+                const pos = map.getTilePos(sprite.x + map.tileWidth, sprite.y);
+                sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
             }
             // sprite.vx = map.getMaxDistanceToTile(sprite, 3, Tile.TYPE.WALL);
             // sprite.cancelMoveTo();
             // this.state = 1;
+        } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
+            // TODO: check that we may rotate first
+            sprite.nextRotation();
+            // since onMove method is called every 15ms and the player most likely doesn't want to rotate
+            // the shape at this rate, we save time when last rotation happened
+            this.lastRotation = timestamp;
         } else if (this.state) {
             sprite.vx = 0;
 

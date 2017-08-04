@@ -74,13 +74,14 @@ export default class Shape extends Sprite {
     }
 
     setShape(name, rotation) {
-        this.shape = name;
+        this.shapeName = name;
         this.rotation = rotation;
+        this.shape = this.shapes.find((shape) => shape.name === this.shapeName);
         this.setAnimation(`${name}${rotation}`);
     }
 
     getShapeMatrix() {
-        return this.shapes[this.shape][this.rotation];
+        return this.shape.rotations[this.rotation];
     }
 
     nextRotation() {
@@ -89,7 +90,7 @@ export default class Shape extends Sprite {
             this.rotation = 0;
             // TODO: check that rotation is possible
         }
-        this.setShape(this.shape, this.rotation);
+        this.setShape(this.shapeName, this.rotation);
     }
 
     addAnimations() {
