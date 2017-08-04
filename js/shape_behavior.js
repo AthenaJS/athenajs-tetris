@@ -31,7 +31,9 @@ class ShapeBehavior extends Behavior {
         const sprite = this.sprite,
             map = sprite.currentMap;
 
-        if (IM.isKeyDown('LEFT')) {
+        if (IM.isKeyDown('DOWN')) {
+
+        } else if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
             // sprite.vx = map.getMaxDistanceToTile(sprite, -3, Tile.TYPE.WALL);
             // sprite.cancelMoveTo();
@@ -42,9 +44,6 @@ class ShapeBehavior extends Behavior {
                 const pos = map.getTilePos(sprite.x - map.tileWidth, sprite.y);
                 sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
             }
-            // 2. yes => get next position
-            // 3 moveTo(nextPosition)
-            // this.state = -1;
         } else if (IM.isKeyDown('RIGHT')) {
             const buffer = sprite.getShapeMatrix();
             console.log('need to move to the right');
@@ -52,9 +51,6 @@ class ShapeBehavior extends Behavior {
                 const pos = map.getTilePos(sprite.x + map.tileWidth, sprite.y);
                 sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
             }
-            // sprite.vx = map.getMaxDistanceToTile(sprite, 3, Tile.TYPE.WALL);
-            // sprite.cancelMoveTo();
-            // this.state = 1;
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
             // TODO: check that we may rotate first
             sprite.nextRotation();
@@ -65,11 +61,7 @@ class ShapeBehavior extends Behavior {
             sprite.vx = 0;
 
             this.state = 0;
-
-            // TODO: snap to left/right tile
         }
-
-        // sprite.x += sprite.vx;
     }
 }
 
