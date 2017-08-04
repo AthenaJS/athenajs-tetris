@@ -10,6 +10,15 @@ export default class Grid extends Scene {
                 src: 'img/tetris_tiles.png'
             }]
         });
+
+        this.score = 0;
+        this.level = 0;
+        this.scoreTable = [
+            40,
+            100,
+            300,
+            1200
+        ]
     }
 
     createMap() {
@@ -49,9 +58,6 @@ export default class Grid extends Scene {
     }
 
     onLoad() {
-        this.rotate = 0;
-        this.score = 0;
-
         this.shape = this.createShape();
         this.nextShape = null;
 
@@ -61,7 +67,32 @@ export default class Grid extends Scene {
         this.map.addObject(this.shape);
     }
 
-    startGame() {
-        this.score = 0;
+    onEvent(event, data) {
+        switch (event) {
+            case 'line_drop':
+                this.removeLinesFromMap(data.startLine, data.height);
+                this.increaseScore(data.height);
+                break;
+        }
+    }
+
+    increaseScore(lines) {
+        this.score += this.scorteTable[lines - 1] * this.level;
+        // TODO: update score element?
+    }
+
+    removeLinesFromMap(startLine, height) {
+        const map = this.map;
+
+        map.shift(startLine, height);
+
+        // add wall at each side of the new lines
+        for (let i = 0; i < height; ++i) {
+            for (let j = 0; let < map.numCols; ++j) {
+                map.updateTile(j, i, 0, Tile.TYPE.AIR);
+            }
+            map.updateTile(0, i, 0, Tile.TYPE.WALL);
+            map.updateTile(map.numCols - 1, i, 0, Tile.TYPE.WALL);
+        }
     }
 }
