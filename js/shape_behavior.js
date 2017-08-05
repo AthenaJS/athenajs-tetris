@@ -17,10 +17,43 @@ class ShapeBehavior extends Behavior {
     constructor(sprite, Input, options) {
         super(sprite, Input, options);
 
-        // current behavior state
+        // current behavior state: moving right, left, top, bottom
         this.state = 0;
         // when lastRotation happened
         this.lastRotation = 0;
+        this.ts = 0;
+        this.longPress = false;
+        this.LONG_DELAY = 250;
+        this.SMALL_DELAY = 100;
+        this.delay = this.LONG_DELAY;
+        this.key = 0;
+    }
+
+    snapToTile() {
+        const sprite = this.sprite,
+            map = sprite.currentMap;
+
+        if (sprite.x % map.tileWidth) {
+            const distance = map.getMaxDistanceToTile(sprite, this.state > 0 ? map.tileWidth : -map.tileWidth, Tile.TYPE.WALL);
+            if (distance) {
+                sprite.snapToMap(this.state === -1, true);
+            }
+        }
+    }
+
+    ready(state, timestamp) {
+        if (this.state !== state) {
+            this.ts = timestamp;
+            this.state = state;
+            this.delay = this.LONG_DELAY;
+            return true;
+        } else if (timestamp - this.ts > this.delay) {
+            this.ts = timestamp;
+            this.delay = this.SMALL_DELAY;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -29,38 +62,40 @@ class ShapeBehavior extends Behavior {
      */
     onMove(timestamp) {
         const sprite = this.sprite,
-            map = sprite.currentMap;
+            map = sprite.currentMap,
+            buffer = sprite.getShapeMatrix();
+
+        let key = 0;
 
         if (IM.isKeyDown('DOWN')) {
-
+            key = 1;
         } else if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
-            // sprite.vx = map.getMaxDistanceToTile(sprite, -3, Tile.TYPE.WALL);
-            // sprite.cancelMoveTo();
-            // 1. can we move in this direction?
-            const buffer = sprite.getShapeMatrix();
-
-            if (!map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x - map.tileWidth, sprite.y, Tile.TYPE.WALL)) {
-                const pos = map.getTilePos(sprite.x - map.tileWidth, sprite.y);
-                sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
+            key = 2;
+            sprite.vx = -3;
+            if (this.ready(-1, timestamp) && !map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + sprite.vx, sprite.y, Tile.TYPE.WALL)) {
+                sprite.x += sprite.vx;
+                this.snapToTile();
             }
         } else if (IM.isKeyDown('RIGHT')) {
-            const buffer = sprite.getShapeMatrix();
-            console.log('need to move to the right');
-            if (!map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + map.tileWidth, sprite.y, Tile.TYPE.WALL)) {
-                const pos = map.getTilePos(sprite.x + map.tileWidth, sprite.y);
-                sprite.moveTo(pos.x * map.tileWidth, pos.y * map.tileHeight, 130);
+            sprite.vx = 3;
+            console.log('right');
+            key = 3;
+            if (this.ready(1, timestamp) && !map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + sprite.vx, sprite.y, Tile.TYPE.WALL)) {
+                //console.log('increasing', this.longPress, this.diffX, timestamp - this.ts);
+                console.log('snap to tile');
+                sprite.x += sprite.vx;
+                this.snapToTile();
             }
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
+            key = 4;
             // TODO: check that we may rotate first
             sprite.nextRotation();
-            // since onMove method is called every 15ms and the player most likely doesn't want to rotate
-            // the shape at this rate, we save time when last rotation happened
             this.lastRotation = timestamp;
-        } else if (this.state) {
             sprite.vx = 0;
-
-            this.state = 0;
+        } else if (this.state && !key) {
+            console.log('key released');
+            this.ready(0, timestamp);
         }
     }
 }

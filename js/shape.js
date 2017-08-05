@@ -68,7 +68,6 @@ export default class Shape extends Sprite {
             }
         ];
 
-        debugger;
         this.addAnimations();
         this.setShape('J', 0);
     }
@@ -88,7 +87,6 @@ export default class Shape extends Sprite {
         this.rotation++;
         if (this.rotation > 3) {
             this.rotation = 0;
-            // TODO: check that rotation is possible
         }
         this.setShape(this.shapeName, this.rotation);
     }

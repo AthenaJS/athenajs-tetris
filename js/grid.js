@@ -88,7 +88,7 @@ export default class Grid extends Scene {
 
         // add wall at each side of the new lines
         for (let i = 0; i < height; ++i) {
-            for (let j = 0; let < map.numCols; ++j) {
+            for (let j = 0; j < map.numCols; ++j) {
                 map.updateTile(j, i, 0, Tile.TYPE.AIR);
             }
             map.updateTile(0, i, 0, Tile.TYPE.WALL);
