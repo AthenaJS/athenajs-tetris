@@ -13,7 +13,7 @@ export default class Grid extends Scene {
 
         this.score = 0;
         this.level = 0;
-        this.timing = 1000;
+        this.timing = 1200;
         this.scoreTable = [
             40,
             100,
@@ -49,6 +49,10 @@ export default class Grid extends Scene {
                 width: 20,
                 height: 20
             }]);
+
+            for (var i = 0; i < 20; ++i) {
+                map.updateTile(Math.random() * 10 | 0 + 1, Math.random() * 18 | 0 + 3, 1, 2)
+            }
 
             return map;
         } catch (err) {

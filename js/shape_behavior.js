@@ -22,7 +22,6 @@ class ShapeBehavior extends Behavior {
         // when lastRotation happened
         this.lastRotation = 0;
         this.ts = 0;
-        this.longPress = false;
         this.LONG_DELAY = 250;
         this.SMALL_DELAY = 80;
         this.delay = this.LONG_DELAY;
@@ -52,24 +51,18 @@ class ShapeBehavior extends Behavior {
                 // TODO: check collisions
                 // next line
                 // EVENT ?
-                this.sprite.y += this.sprite.currentMap.tileHeight;
+                if (!this.snapTile(0, 1)) {
+                    // event ??
+                    debugger;
+                } else {
+                    console.log('getting down');
+                }
+
                 this.startTime = timestamp;
                 return true;
             }
         }
         return false;
-    }
-
-    snapTile(isLeft) {
-        const sprite = this.sprite,
-            map = sprite.currentMap,
-            buffer = sprite.getShapeMatrix(),
-            tilePos = map.getTileIndexFromPixel(sprite.x, sprite.y),
-            newX = isLeft ? tilePos.x - 1 : tilePos.x + 1;
-
-        if (!map.checkMatrixForCollision(buffer, sprite.shape.width, newX, tilePos.y, Tile.TYPE.WALL)) {
-            sprite.x += isLeft ? -map.tileWidth : map.tileWidth;
-        }
     }
 
     /**
@@ -87,18 +80,21 @@ class ShapeBehavior extends Behavior {
 
         if (IM.isKeyDown('DOWN')) {
             key = 1;
+            if (this.ready(key, timestamp)) {
+                sprite.snapTile(0, 1);
+            }
         } else if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
             key = 2;
 
-            if (this.ready(-1, timestamp)) {
-                this.snapTile(true);
+            if (this.ready(key, timestamp)) {
+                sprite.snapTile(-1);
             }
         } else if (IM.isKeyDown('RIGHT')) {
             console.log('right');
             key = 3;
-            if (this.ready(-1, timestamp)) {
-                this.snapTile(false);
+            if (this.ready(key, timestamp)) {
+                sprite.snapTile(1);
             }
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
             key = 4;
@@ -108,7 +104,7 @@ class ShapeBehavior extends Behavior {
             sprite.vx = 0;
         } else if (this.state && !key) {
             console.log('key released');
-            this.ready(0, timestamp);
+            this.ready(key, timestamp);
         }
     }
 }

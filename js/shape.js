@@ -1,4 +1,4 @@
-import { Sprite } from 'athenajs';
+import { Sprite, Tile } from 'athenajs';
 import ShapeBehavior from 'shape_behavior';
 
 export default class Shape extends Sprite {
@@ -79,16 +79,44 @@ export default class Shape extends Sprite {
         this.setAnimation(`${name}${rotation}`);
     }
 
-    getShapeMatrix() {
-        return this.shape.rotations[this.rotation];
+    getShapeMatrix(rotation = -1) {
+        return this.shape.rotations[rotation === -1 ? this.rotation : rotation];
+    }
+
+    snapTile(horizontal = 0, vertical = 0) {
+        const map = this.currentMap,
+            buffer = this.getShapeMatrix(),
+            tilePos = map.getTileIndexFromPixel(this.x, this.y),
+            newX = tilePos.x + horizontal,
+            newY = tilePos.y + vertical;
+
+        if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
+            this.x += horizontal * map.tileWidth;
+            this.y += vertical * map.tileHeight;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     nextRotation() {
-        this.rotation++;
-        if (this.rotation > 3) {
-            this.rotation = 0;
+        let matrix = null,
+            newRotation = this.rotation + 1;
+        const map = this.currentMap,
+            tilePos = map.getTileIndexFromPixel(this.x, this.y);
+
+        if (newRotation > 3) {
+            newRotation = 0;
         }
-        this.setShape(this.shapeName, this.rotation);
+
+        matrix = this.getShapeMatrix(newRotation);
+
+        // TODO: test me with screen borders !
+        if (!map.checkMatrixForCollision(matrix, this.shape.width, tilePos.x, tilePos.y, Tile.TYPE.WALL)) {
+            this.setShape(this.shapeName, newRotation);
+        } else {
+            console.log('rotation not possible');
+        }
     }
 
     addAnimations() {
