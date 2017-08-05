@@ -13,6 +13,7 @@ export default class Grid extends Scene {
 
         this.score = 0;
         this.level = 0;
+        this.timing = 1000;
         this.scoreTable = [
             40,
             100,
@@ -42,6 +43,11 @@ export default class Grid extends Scene {
                 offsetY: 440,
                 width: 20,
                 height: 20
+            }, {
+                offsetX: 120,
+                offsetY: 440,
+                width: 20,
+                height: 20
             }]);
 
             return map;
@@ -53,7 +59,10 @@ export default class Grid extends Scene {
     createShape() {
         return new Shape('shape', {
             x: 20,
-            y: 0
+            y: 0,
+            data: {
+                speed: 800
+            }
         });
     }
 

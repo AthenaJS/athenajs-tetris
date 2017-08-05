@@ -24,21 +24,9 @@ class ShapeBehavior extends Behavior {
         this.ts = 0;
         this.longPress = false;
         this.LONG_DELAY = 250;
-        this.SMALL_DELAY = 100;
+        this.SMALL_DELAY = 80;
         this.delay = this.LONG_DELAY;
         this.key = 0;
-    }
-
-    snapToTile() {
-        const sprite = this.sprite,
-            map = sprite.currentMap;
-
-        if (sprite.x % map.tileWidth) {
-            const distance = map.getMaxDistanceToTile(sprite, this.state > 0 ? map.tileWidth : -map.tileWidth, Tile.TYPE.WALL);
-            if (distance) {
-                sprite.snapToMap(this.state === -1, true);
-            }
-        }
     }
 
     ready(state, timestamp) {
@@ -56,42 +44,67 @@ class ShapeBehavior extends Behavior {
         }
     }
 
+    timer(timestamp) {
+        if (!this.startTime) {
+            this.startTime = timestamp;
+        } else {
+            if (timestamp - this.startTime > this.sprite.data.speed) {
+                // TODO: check collisions
+                // next line
+                // EVENT ?
+                this.sprite.y += this.sprite.currentMap.tileHeight;
+                this.startTime = timestamp;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    snapTile(isLeft) {
+        const sprite = this.sprite,
+            map = sprite.currentMap,
+            buffer = sprite.getShapeMatrix(),
+            tilePos = map.getTileIndexFromPixel(sprite.x, sprite.y),
+            newX = isLeft ? tilePos.x - 1 : tilePos.x + 1;
+
+        if (!map.checkMatrixForCollision(buffer, sprite.shape.width, newX, tilePos.y, Tile.TYPE.WALL)) {
+            sprite.x += isLeft ? -map.tileWidth : map.tileWidth;
+        }
+    }
+
     /**
      * Simple onMove handler that checks for a wall or hole
      * 
      */
     onMove(timestamp) {
-        const sprite = this.sprite,
-            map = sprite.currentMap,
-            buffer = sprite.getShapeMatrix();
+        const sprite = this.sprite;
 
         let key = 0;
+
+        // if (this.timer(timestamp)) {
+        //     return;
+        // }
 
         if (IM.isKeyDown('DOWN')) {
             key = 1;
         } else if (IM.isKeyDown('LEFT')) {
             console.log('need to move to the left');
             key = 2;
-            sprite.vx = -3;
-            if (this.ready(-1, timestamp) && !map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + sprite.vx, sprite.y, Tile.TYPE.WALL)) {
-                sprite.x += sprite.vx;
-                this.snapToTile();
+
+            if (this.ready(-1, timestamp)) {
+                this.snapTile(true);
             }
         } else if (IM.isKeyDown('RIGHT')) {
-            sprite.vx = 3;
             console.log('right');
             key = 3;
-            if (this.ready(1, timestamp) && !map.checkMatrixForCollision(buffer, sprite.shape.width, sprite.x + sprite.vx, sprite.y, Tile.TYPE.WALL)) {
-                //console.log('increasing', this.longPress, this.diffX, timestamp - this.ts);
-                console.log('snap to tile');
-                sprite.x += sprite.vx;
-                this.snapToTile();
+            if (this.ready(-1, timestamp)) {
+                this.snapTile(false);
             }
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
             key = 4;
             // TODO: check that we may rotate first
-            sprite.nextRotation();
             this.lastRotation = timestamp;
+            sprite.nextRotation();
             sprite.vx = 0;
         } else if (this.state && !key) {
             console.log('key released');
