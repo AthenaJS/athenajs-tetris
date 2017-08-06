@@ -11,7 +11,7 @@ export default class Shape extends Sprite {
 
         this.shapes = [
             {
-                name: 'I', width: 80, height: 80, rotations: [
+                name: 'I', width: 80, height: 80, color: 7, rotations: [
                     [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
                     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
@@ -19,7 +19,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'J', width: 60, height: 60, rotations: [
+                name: 'J', width: 60, height: 60, color: 6, rotations: [
                     [1, 0, 0, 1, 1, 1, 0, 0, 0],
                     [0, 1, 1, 0, 1, 0, 0, 1, 0],
                     [0, 0, 0, 1, 1, 1, 0, 0, 1],
@@ -27,7 +27,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'L', width: 60, height: 60, rotations: [
+                name: 'L', width: 60, height: 60, color: 5, rotations: [
                     [0, 0, 1, 1, 1, 1, 0, 0, 0],
                     [0, 1, 0, 0, 1, 0, 0, 1, 1],
                     [0, 0, 0, 1, 1, 1, 1, 0, 0],
@@ -35,7 +35,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'O', width: 80, height: 60, rotations: [
+                name: 'O', width: 80, height: 60, color: 4, rotations: [
                     [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
                     [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
                     [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
@@ -43,7 +43,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'S', width: 60, height: 60, rotations: [
+                name: 'S', width: 60, height: 60, color: 3, rotations: [
                     [0, 1, 1, 1, 1, 0, 0, 0, 0],
                     [0, 1, 0, 0, 1, 1, 0, 0, 1],
                     [0, 0, 0, 0, 1, 1, 1, 1, 0],
@@ -51,7 +51,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'Z', width: 60, height: 60, rotations: [
+                name: 'Z', width: 60, height: 60, color: 2, rotations: [
                     [1, 1, 0, 0, 1, 1, 0, 0, 0],
                     [0, 0, 1, 0, 1, 1, 0, 1, 0],
                     [0, 0, 0, 1, 1, 0, 0, 1, 1],
@@ -59,7 +59,7 @@ export default class Shape extends Sprite {
                 ]
             },
             {
-                name: 'T', width: 60, height: 60, rotations: [
+                name: 'T', width: 60, height: 60, color: 1, rotations: [
                     [0, 1, 0, 1, 1, 1, 0, 0, 0],
                     [0, 1, 0, 0, 1, 1, 0, 1, 0],
                     [0, 0, 0, 1, 1, 1, 0, 1, 0],
@@ -69,7 +69,7 @@ export default class Shape extends Sprite {
         ];
 
         this.addAnimations();
-        this.setShape('J', 0);
+        this.setShape('S', 0);
     }
 
     setShape(name, rotation) {
@@ -79,13 +79,13 @@ export default class Shape extends Sprite {
         this.setAnimation(`${name}${rotation}`);
     }
 
-    getShapeMatrix(rotation = -1) {
+    getMatrix(rotation = -1) {
         return this.shape.rotations[rotation === -1 ? this.rotation : rotation];
     }
 
     snapTile(horizontal = 0, vertical = 0) {
         const map = this.currentMap,
-            buffer = this.getShapeMatrix(),
+            buffer = this.getMatrix(),
             tilePos = map.getTileIndexFromPixel(this.x, this.y),
             newX = tilePos.x + horizontal,
             newY = tilePos.y + vertical;
@@ -95,6 +95,13 @@ export default class Shape extends Sprite {
             this.y += vertical * map.tileHeight;
             return true;
         } else {
+            if (vertical === 1) {
+                this.notify('ground', {
+                    startLine: tilePos.y,
+                    numRows: this.shape.height / map.tileHeight
+                });
+                this.movable = false;
+            }
             return false;
         }
     }
@@ -109,7 +116,7 @@ export default class Shape extends Sprite {
             newRotation = 0;
         }
 
-        matrix = this.getShapeMatrix(newRotation);
+        matrix = this.getMatrix(newRotation);
 
         // TODO: test me with screen borders !
         if (!map.checkMatrixForCollision(matrix, this.shape.width, tilePos.x, tilePos.y, Tile.TYPE.WALL)) {

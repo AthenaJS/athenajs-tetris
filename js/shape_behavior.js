@@ -48,14 +48,8 @@ class ShapeBehavior extends Behavior {
             this.startTime = timestamp;
         } else {
             if (timestamp - this.startTime > this.sprite.data.speed) {
-                // TODO: check collisions
-                // next line
-                // EVENT ?
                 if (!this.snapTile(0, 1)) {
-                    // event ??
-                    debugger;
-                } else {
-                    console.log('getting down');
+
                 }
 
                 this.startTime = timestamp;
@@ -74,6 +68,7 @@ class ShapeBehavior extends Behavior {
 
         let key = 0;
 
+        // do not allow any other move if timer reached
         // if (this.timer(timestamp)) {
         //     return;
         // }
