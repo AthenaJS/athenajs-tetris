@@ -64,9 +64,9 @@ export default class Grid extends Scene {
 
             map.addTileSet(tiles);
 
-            for (var i = 0; i < 20; ++i) {
-                map.updateTile(Math.random() * 10 | 0 + 1, Math.random() * 18 | 0 + 3, 1, 2)
-            }
+            // for (var i = 0; i < 20; ++i) {
+            //     map.updateTile(Math.random() * 10 | 0 + 1, Math.random() * 18 | 0 + 3, 1, 2)
+            // }
 
             return map;
         } catch (err) {

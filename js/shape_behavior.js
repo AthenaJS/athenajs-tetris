@@ -44,11 +44,12 @@ class ShapeBehavior extends Behavior {
     }
 
     timer(timestamp) {
+        const sprite = this.sprite;
         if (!this.startTime) {
             this.startTime = timestamp;
         } else {
-            if (timestamp - this.startTime > this.sprite.data.speed) {
-                if (!this.snapTile(0, 1)) {
+            if (timestamp - this.startTime > sprite.data.speed) {
+                if (!sprite.snapTile(0, 1)) {
 
                 }
 
@@ -69,9 +70,9 @@ class ShapeBehavior extends Behavior {
         let key = 0;
 
         // do not allow any other move if timer reached
-        // if (this.timer(timestamp)) {
-        //     return;
-        // }
+        if (this.timer(timestamp)) {
+            return;
+        }
 
         if (IM.isKeyDown('DOWN')) {
             key = 1;
