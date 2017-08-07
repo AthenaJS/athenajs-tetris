@@ -87,6 +87,17 @@ export default class Grid extends Scene {
             buffer: new ArrayBuffer(MAP_COLS * MAP_ROWS * 2)
         });
 
+        // finally add the tileset
+        map.addTileSet(this.generateTileSet());
+
+        return map;
+    }
+
+    resetMap() {
+        const map = this.map;
+
+        map.clear(0, Tile.TYPE.AIR);
+
         // set map tiles around the playground as wall tiles
         for (let i = 0; i < map.numRows; ++i) {
             map.updateTile(0, i, WALL_TILE, Tile.TYPE.WALL);
@@ -96,11 +107,6 @@ export default class Grid extends Scene {
         for (let i = 0; i < map.numCols; ++i) {
             map.updateTile(i, map.numRows - 1, WALL_TILE, Tile.TYPE.WALL);
         }
-
-        // finally add the tileset
-        map.addTileSet(this.generateTileSet());
-
-        return map;
     }
 
     /**
@@ -109,7 +115,7 @@ export default class Grid extends Scene {
     createShape() {
         return new Shape('shape', {
             data: {
-                speed: 800
+                speed: this.timing
             }
         });
     }
@@ -126,12 +132,26 @@ export default class Grid extends Scene {
         const map = this.createMap();
         // center map
         this.setMap(map, (TOTAL_WIDTH - map.width) / 2, (TOTAL_HEIGHT - map.height) / 2);
+        this.resetMap();
         this.setBackgroundImage('img/background.png');
 
         this.map.addObject(this.shape);
 
         this.shape.moveToTop();
         this.shape.setRandomShape();
+    }
+
+    /**
+     * Called on game over, simply displays the score in an alert box and restarts the game
+     */
+    gameover() {
+        alert('game over!' + this.score);
+        this.score = 0;
+        this.level = 0;
+        this.resetMap();
+        this.shape.moveToTop();
+        this.shape.setRandomShape();
+        this.shape.movable = true;
     }
 
     /**
@@ -151,7 +171,7 @@ export default class Grid extends Scene {
                 this.shape.moveToTop();
                 // we may have a game over here: if the shape collides with another one
                 if (!this.shape.snapTile(0, 0, false)) {
-                    alert('game over!');
+                    this.gameover();
                 } else {
                     this.shape.movable = true;
                 }
