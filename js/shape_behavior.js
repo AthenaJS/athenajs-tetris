@@ -1,15 +1,9 @@
 import { Behavior, Tile, InputManager as IM } from 'athenajs';
 
-/*jshint devel: true, bitwise: false*/
-// by default
 /**
- * GroundMove is a simple behavior that causes an object to move along the horizontal
- * axis until a wall or tetris piece is detected
+ * Simple Behavior for the tetris shape that moves the shape on cursor key press
+ * and when timer is reached
  * 
- * @param {Sprite} sprite The sprite to attach the behavior to.
- * @param {InputManager} Input A reference to the InputManager.
- * @param {Object} options General behavior & GroundMove specific options
- * @param {String} [options.direction="right"] The initial direction of the move, default = `right`.
  * 
  * @see {Behavior}
  */
@@ -22,38 +16,65 @@ class ShapeBehavior extends Behavior {
         // when lastRotation happened
         this.lastRotation = 0;
         this.ts = 0;
+        // long delay before starting to move quickly
         this.LONG_DELAY = 250;
+        // repeat-delay once the long delay has been reached
         this.SMALL_DELAY = 80;
+
+        // current delay before repeating a key
         this.delay = this.LONG_DELAY;
         this.key = 0;
         this.timerEnabled = true;
     }
 
+    /**
+     * When the player keeps a key down, we wait for a long delay before
+     * quickly moving the picece: we don't want to miss interpret his move.
+     * 
+     * If he quickly releases the key and quickly presses it, we have to
+     * react though
+     * 
+     * @param {Number} state the new state (key) pressed
+     * @param {Number} timestamp current timestamp
+     * 
+     * @returns {Boolean} true if we should to react to the action
+     */
     ready(state, timestamp) {
+        // if the player pressed a different key
+        // we react immediately but have to wait a long_delay
+        // before repeating the key if he keeps pressing it
         if (this.state !== state) {
             this.ts = timestamp;
             this.state = state;
             this.delay = this.LONG_DELAY;
             return true;
         } else if (timestamp - this.ts > this.delay) {
+            // player keeps pressing the key for a long delay
+            // we react and set delay to a smaller one to quickly
+            // repeat the action
             this.ts = timestamp;
             this.delay = this.SMALL_DELAY;
             return true;
         } else {
+            // repeat delay not reached
             return false;
         }
     }
 
+    /**
+     * Checks tetris timer
+     * 
+     * @param {Number} timestamp current update timestamp
+     * 
+     * @returns {Boolean} true if timer was reached
+     */
     timer(timestamp) {
         const sprite = this.sprite;
         if (!this.startTime) {
             this.startTime = timestamp;
         } else {
             if (timestamp - this.startTime > sprite.data.speed) {
-                if (!sprite.snapTile(0, 1)) {
-
-                }
-
+                // timer reached
                 this.startTime = timestamp;
                 return true;
             }
@@ -62,24 +83,29 @@ class ShapeBehavior extends Behavior {
     }
 
     /**
-     * Simple onMove handler that checks for a wall or hole
-     * 
+     * This method is called when updating the shape's position
+     * and updates its position when cursor keys are pressed or
+     * the timer happened
      */
     onMove(timestamp) {
         const sprite = this.sprite;
 
         let key = 0;
 
+        // debug: stop the timer when t key is pressed
         if (IM.isKeyDown(84)) {
             this.timerEnabled = !this.timerEnabled;
             return;
         }
 
-        // do not allow any other move if timer reached
+        // first check timer
         if (this.timerEnabled && this.timer(timestamp)) {
+            // timer reached: move the sprite down
+            sprite.snapTile(0, 1);
             return;
         }
 
+        // Then checks cursor keys
         if (IM.isKeyDown('DOWN')) {
             key = 1;
             if (this.ready(key, timestamp)) {
@@ -100,12 +126,10 @@ class ShapeBehavior extends Behavior {
             }
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
             key = 4;
-            // TODO: check that we may rotate first
             this.lastRotation = timestamp;
             sprite.nextRotation();
-            sprite.vx = 0;
         } else if (this.state && !key) {
-            console.log('key released');
+            // key released
             this.ready(key, timestamp);
         }
     }

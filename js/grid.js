@@ -1,6 +1,17 @@
 import { Scene, Map, Tile } from 'athenajs';
 import Shape from 'shape';
 
+// size constants
+const MAP_ROWS = 22,
+    MAP_COLS = 12,
+    TILE_WIDTH = 20,
+    TILE_HEIGHT = 20,
+    MAP_TILES_OFFSET_Y = 440,
+    WALL_TILE_OFFSET_X = 140,
+    WALL_TILE = 8,
+    TOTAL_WIDTH = 800,
+    TOTAL_HEIGHT = 600;
+
 export default class Grid extends Scene {
     constructor() {
         super({
@@ -11,6 +22,7 @@ export default class Grid extends Scene {
             }]
         });
 
+        // here we keep game-related properties
         this.score = 0;
         this.level = 0;
         this.timing = 1200;
@@ -21,93 +33,114 @@ export default class Grid extends Scene {
             1200
         ];
 
+        // we only need to catch the 'ground' event from the 'shape' element
         this.bindEvents('shape:ground');
     }
 
-    createMap() {
-        try {
-            const map = new Map({
-                src: 'tiles',
-                tileWidth: 20,
-                tileHeight: 20,
-                width: 240,
-                height: 440,
-                buffer: new ArrayBuffer(12 * 22 * 2)
-            });
+    /**
+     * Generate tileset for the tetris map, mostly hardcoded stuff
+     * 
+     * @returns {Array} The tileset for the map
+     */
+    generateTileSet() {
+        // create the list of all tiles for the map
+        const tiles = [{
+            offsetX: WALL_TILE_OFFSET_X,
+            offsetY: MAP_TILES_OFFSET_Y,
+            width: TILE_WIDTH,
+            height: TILE_HEIGHT
+        }];
 
-            for (let i = 0; i < map.numRows; ++i) {
-                map.updateTile(0, i, 8, Tile.TYPE.WALL);
-                map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
-            }
-
-            for (let i = 0; i < map.numCols; ++i) {
-                map.updateTile(i, map.numRows - 1, 8, Tile.TYPE.WALL);
-            }
-
-            const tiles = [{
-                offsetX: 140,
-                offsetY: 440,
-                width: 20,
-                height: 20
-            }];
-
-            for (let i = 0, offset = 0; i < 7; ++i, offset += 20) {
-                tiles.push(
-                    {
-                        offsetX: offset,
-                        offsetY: 440,
-                        width: 20,
-                        height: 20
-                    }
-                );
-            }
-
-            tiles.push({
-                offsetX: 160,
-                offsetY: 440,
-                width: 20,
-                height: 20
-            });
-
-            map.addTileSet(tiles);
-
-            // for (var i = 0; i < 20; ++i) {
-            //     map.updateTile(Math.random() * 10 | 0 + 1, Math.random() * 18 | 0 + 3, 1, 2)
-            // }
-
-            return map;
-        } catch (err) {
-            debugger;
+        // add a tile for each color
+        for (let i = 0, offset = 0; i < 7; ++i, offset += TILE_WIDTH) {
+            tiles.push(
+                {
+                    offsetX: offset,
+                    offsetY: MAP_TILES_OFFSET_Y,
+                    width: TILE_WIDTH,
+                    height: TILE_HEIGHT
+                }
+            );
         }
+
+        tiles.push({
+            offsetX: 160,
+            offsetY: MAP_TILES_OFFSET_Y,
+            width: TILE_WIDTH,
+            height: TILE_HEIGHT
+        });
+
+        return tiles;
     }
 
+    /**
+     * Generates the map of the game, adding walls around the playground
+     */
+    createMap() {
+        // first create the map with an empty buffer
+        const map = new Map({
+            src: 'tiles',
+            tileWidth: TILE_WIDTH,
+            tileHeight: TILE_WIDTH,
+            width: TILE_WIDTH * MAP_COLS,
+            height: TILE_HEIGHT * MAP_ROWS,
+            buffer: new ArrayBuffer(MAP_COLS * MAP_ROWS * 2)
+        });
+
+        // set map tiles around the playground as wall tiles
+        for (let i = 0; i < map.numRows; ++i) {
+            map.updateTile(0, i, WALL_TILE, Tile.TYPE.WALL);
+            map.updateTile(map.numCols - 1, i, WALL_TILE, Tile.TYPE.WALL);
+        }
+
+        for (let i = 0; i < map.numCols; ++i) {
+            map.updateTile(i, map.numRows - 1, WALL_TILE, Tile.TYPE.WALL);
+        }
+
+        // finally add the tileset
+        map.addTileSet(this.generateTileSet());
+
+        return map;
+    }
+
+    /**
+     * Generates the tile sprite that will be moved by the player
+     */
     createShape() {
         return new Shape('shape', {
-            x: 20,
-            y: 0,
             data: {
                 speed: 800
             }
         });
     }
 
+    /**
+     * Called when the scene is ready: generates the map and adds the player's shape
+     * sprite onto the screen
+     */
     onLoad() {
         this.shape = this.createShape();
+
         this.nextShape = null;
 
-        this.setMap(this.createMap(), 300, 100);
+        const map = this.createMap();
+        // center map
+        this.setMap(map, (TOTAL_WIDTH - map.width) / 2, (TOTAL_HEIGHT - map.height) / 2);
         this.setBackgroundImage('img/background.png');
 
         this.map.addObject(this.shape);
+
+        this.shape.moveToTop();
+        this.shape.setRandomShape();
     }
 
+    /**
+     * This method is called whenever an event that has been registered is received
+     * 
+     * @param {Object} event the event object
+     */
     onEvent(event) {
         switch (event.type) {
-            case 'line_drop':
-                this.removeLinesFromMap(data.startLine, data.height);
-                this.increaseScore(data.height);
-                break;
-
             case 'shape:ground':
                 // update the map with the new shape
                 this.updateMap();
@@ -125,6 +158,10 @@ export default class Grid extends Scene {
         }
     }
 
+    /**
+     * This method is called when a shape has reached the ground: in this case
+     * we simply update the map using the shape's matrix
+     */
     updateMap() {
         const shape = this.shape,
             data = this.shape.shape,
@@ -143,19 +180,29 @@ export default class Grid extends Scene {
         }
     }
 
+    /**
+     * returns the number of lines that contains no hole, starting from
+     * startLine up to startLine + height
+     * 
+     * @param {Number} startLine the first line to remove
+     * @param {Number} height the number of lines to remove
+     * 
+     * @returns {Array} an array containing the line numbers that are full, sorted
+     * from the bottom to the top
+     */
     getLinesToRemove(startLine, height) {
         console.log('getting lines to remove');
         const map = this.map;
         let lines = [],
             lastLine = startLine + height - 1;
 
+        // avoid bottom ground
         if (lastLine > map.numRows - 2)
             lastLine = map.numRows - 2;
 
         for (let j = lastLine; j >= startLine; --j) {
             let hole = false;
             for (let i = 1; i < map.numCols - 1; ++i) {
-                console.log(map.getTileBehaviorAtIndex(i, j), Tile.TYPE.WALL);
                 hole = hole || map.getTileBehaviorAtIndex(i, j) !== Tile.TYPE.WALL;
             }
             if (!hole) {
@@ -166,21 +213,33 @@ export default class Grid extends Scene {
         return lines;
     }
 
+    /**
+     * Updates the player's score using line number & current level
+     * 
+     * @param {Number} lines the number of lines that have been removed
+     */
     increaseScore(lines) {
-        this.score += this.scorteTable[lines - 1] * this.level;
+        this.score += this.scoreTable[lines - 1] + this.level * this.scoreTable[lines - 1];
         // TODO: update score element?
     }
 
+    /**
+     * Removes lines from the map, shifting the map as needed, and adding
+     * empty tiles at the top
+     * 
+     * @param {Number} startLine the first line to remove
+     * @param {Number} height the number of lines to remove
+     */
     removeLinesFromMap(startLine, height) {
         const map = this.map,
             lines = this.getLinesToRemove(startLine, height);
 
+        // no full lines detected
         if (!lines.length) {
             return;
-        } else {
-            this.getLinesToRemove(startLine, height);
         }
 
+        // shift the map for each line to remove
         for (let i = 0; i < lines.length; ++i) {
             map.shift(lines[i] + i, 1);
         }
@@ -193,5 +252,7 @@ export default class Grid extends Scene {
             map.updateTile(0, i, 8, Tile.TYPE.WALL);
             map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
         }
+
+        this.increaseScore(lines.length);
     }
 }
