@@ -26,6 +26,7 @@ class ShapeBehavior extends Behavior {
         this.SMALL_DELAY = 80;
         this.delay = this.LONG_DELAY;
         this.key = 0;
+        this.timerEnabled = true;
     }
 
     ready(state, timestamp) {
@@ -69,8 +70,13 @@ class ShapeBehavior extends Behavior {
 
         let key = 0;
 
+        if (IM.isKeyDown(84)) {
+            this.timerEnabled = !this.timerEnabled;
+            return;
+        }
+
         // do not allow any other move if timer reached
-        if (this.timer(timestamp)) {
+        if (this.timerEnabled && this.timer(timestamp)) {
             return;
         }
 

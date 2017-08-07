@@ -36,12 +36,12 @@ export default class Grid extends Scene {
             });
 
             for (let i = 0; i < map.numRows; ++i) {
-                map.updateTile(0, i, 0, Tile.TYPE.WALL);
-                map.updateTile(map.numCols - 1, i, 0, Tile.TYPE.WALL);
+                map.updateTile(0, i, 8, Tile.TYPE.WALL);
+                map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
             }
 
             for (let i = 0; i < map.numCols; ++i) {
-                map.updateTile(i, map.numRows - 1, 0, Tile.TYPE.WALL);
+                map.updateTile(i, map.numRows - 1, 8, Tile.TYPE.WALL);
             }
 
             const tiles = [{
@@ -61,6 +61,13 @@ export default class Grid extends Scene {
                     }
                 );
             }
+
+            tiles.push({
+                offsetX: 160,
+                offsetY: 440,
+                width: 20,
+                height: 20
+            });
 
             map.addTileSet(tiles);
 
@@ -102,16 +109,14 @@ export default class Grid extends Scene {
                 break;
 
             case 'shape:ground':
-                debugger;
                 // update the map with the new shape
                 this.updateMap();
                 // check for lines to remove
-                const lines = this.getLinesToRemove(event.data.startLine, event.data.numRows);
-                if (lines) {
-
-                }
-                // set new shape from next shape
-                // position shape on top / center of playground
+                this.removeLinesFromMap(event.data.startLine, event.data.numRows);
+                // TODO: we should change the shape of the "next shape" instead
+                this.shape.moveToTop();
+                this.shape.setRandomShape();
+                this.shape.movable = true;
                 // increase score ?
                 // set new next shape
                 // set shape to movable
@@ -141,9 +146,13 @@ export default class Grid extends Scene {
     getLinesToRemove(startLine, height) {
         console.log('getting lines to remove');
         const map = this.map;
-        let lines = [];
+        let lines = [],
+            lastLine = startLine + height - 1;
 
-        for (let j = startLine + height - 1; j >= startLine; --j) {
+        if (lastLine > map.numRows - 2)
+            lastLine = map.numRows - 2;
+
+        for (let j = lastLine; j >= startLine; --j) {
             let hole = false;
             for (let i = 1; i < map.numCols - 1; ++i) {
                 console.log(map.getTileBehaviorAtIndex(i, j), Tile.TYPE.WALL);
@@ -163,18 +172,26 @@ export default class Grid extends Scene {
     }
 
     removeLinesFromMap(startLine, height) {
-        const map = this.map;
+        const map = this.map,
+            lines = this.getLinesToRemove(startLine, height);
 
-        // TODO: forEach... for each line
-        map.shift(startLine, height);
+        if (!lines.length) {
+            return;
+        } else {
+            this.getLinesToRemove(startLine, height);
+        }
+
+        for (let i = 0; i < lines.length; ++i) {
+            map.shift(lines[i] + i, 1);
+        }
 
         // add wall at each side of the new lines
         for (let i = 0; i < height; ++i) {
             for (let j = 0; j < map.numCols; ++j) {
                 map.updateTile(j, i, 0, Tile.TYPE.AIR);
             }
-            map.updateTile(0, i, 0, Tile.TYPE.WALL);
-            map.updateTile(map.numCols - 1, i, 0, Tile.TYPE.WALL);
+            map.updateTile(0, i, 8, Tile.TYPE.WALL);
+            map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
         }
     }
 }

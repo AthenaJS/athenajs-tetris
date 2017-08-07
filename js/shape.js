@@ -15,7 +15,7 @@ export default class Shape extends Sprite {
                     [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
                     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]
+                    [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
                 ]
             },
             {
@@ -72,11 +72,25 @@ export default class Shape extends Sprite {
         this.setShape('S', 0);
     }
 
+    moveToTop() {
+        const map = this.currentMap,
+            col = Math.floor(((map.width - this.shape.width) / 2) / map.tileWidth);
+
+        this.moveTo(col * map.tileWidth, 0);
+    }
+
     setShape(name, rotation) {
         this.shapeName = name;
         this.rotation = rotation;
         this.shape = this.shapes.find((shape) => shape.name === this.shapeName);
         this.setAnimation(`${name}${rotation}`);
+    }
+
+    setRandomShape() {
+        const shapeName = this.shapes[Math.random() * 7 | 0].name,
+            rotation = Math.random() * 4 | 0;
+
+        this.setShape(shapeName, rotation);
     }
 
     getMatrix(rotation = -1) {
@@ -96,11 +110,11 @@ export default class Shape extends Sprite {
             return true;
         } else {
             if (vertical === 1) {
+                this.movable = false;
                 this.notify('ground', {
                     startLine: tilePos.y,
                     numRows: this.shape.height / map.tileHeight
                 });
-                this.movable = false;
             }
             return false;
         }
