@@ -135,12 +135,16 @@ export default class Shape extends Sprite {
     }
 
     /**
-     * Move the shape on the map by a certain number of tiles
+     * Move the shape on the map by a certain number of tiles, optionnaly sending an event
+     * of a collision is detected
      * 
      * @param {Number} horizontal horizontal number of tiles to shift
      * @param {Number} vertical vertical number of tiles to move
+     * @param {Boolean = true} notify set to true to send a notification
+     * 
+     * @returns {Boolean} true if shape could be moved, false if a collision was detected
      */
-    snapTile(horizontal = 0, vertical = 0) {
+    snapTile(horizontal = 0, vertical = 0, notify = true) {
         const map = this.currentMap,
             buffer = this.getMatrix(),
             tilePos = map.getTileIndexFromPixel(this.x, this.y),
@@ -158,10 +162,12 @@ export default class Shape extends Sprite {
             // and make the shape stop responding to user input or timer
             if (vertical === 1) {
                 this.movable = false;
-                this.notify('ground', {
-                    startLine: tilePos.y,
-                    numRows: this.shape.height / map.tileHeight
-                });
+                if (notify) {
+                    this.notify('ground', {
+                        startLine: tilePos.y,
+                        numRows: this.shape.height / map.tileHeight
+                    });
+                }
             }
             return false;
         }

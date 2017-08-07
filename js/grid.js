@@ -147,15 +147,26 @@ export default class Grid extends Scene {
                 // check for lines to remove
                 this.removeLinesFromMap(event.data.startLine, event.data.numRows);
                 // TODO: we should change the shape of the "next shape" instead
-                this.shape.moveToTop();
                 this.shape.setRandomShape();
-                this.shape.movable = true;
-                // increase score ?
+                this.shape.moveToTop();
+                // we may have a game over here: if the shape collides with another one
+                if (!this.shape.snapTile(0, 0, false)) {
+                    alert('game over!');
+                } else {
+                    this.shape.movable = true;
+                }
                 // set new next shape
                 // set shape to movable
-                console.log('ground', event.data);
                 break;
         }
+    }
+
+    /**
+     * checks if the shape is at the top of the screen
+     */
+    isTop() {
+        const matrix = this.shape.getMatrix();
+
     }
 
     /**
