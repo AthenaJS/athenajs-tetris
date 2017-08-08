@@ -158,6 +158,7 @@ export default class Grid extends Scene {
         this.shape.moveToTop();
         this.shape.setRandomShape();
         this.shape.movable = true;
+        this.shape.behavior.reset();
     }
 
     /**

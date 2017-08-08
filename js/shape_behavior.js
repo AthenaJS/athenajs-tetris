@@ -19,7 +19,13 @@ class ShapeBehavior extends Behavior {
         // long delay before starting to move quickly
         this.LONG_DELAY = 250;
         // repeat-delay once the long delay has been reached
-        this.SMALL_DELAY = 80;
+        this.SMALL_DELAY = 70;
+
+        this.reset();
+    }
+
+    reset() {
+        IM.clearEvents();
 
         // current delay before repeating a key
         this.delay = this.LONG_DELAY;
