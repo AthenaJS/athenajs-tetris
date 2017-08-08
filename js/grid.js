@@ -1,4 +1,4 @@
-import { Scene, Map, Tile } from 'athenajs';
+import { Scene, Map, Tile, Text } from 'athenajs';
 import Shape from 'shape';
 
 // size constants
@@ -25,6 +25,7 @@ export default class Grid extends Scene {
         // here we keep game-related properties
         this.score = 0;
         this.level = 0;
+        this.lines = 0;
         this.timing = 1200;
         this.scoreTable = [
             40,
@@ -112,11 +113,35 @@ export default class Grid extends Scene {
     /**
      * Generates the tile sprite that will be moved by the player
      */
-    createShape() {
-        return new Shape('shape', {
+    createShapes() {
+        this.shape = new Shape('shape', {
             data: {
                 speed: this.timing
             }
+        });
+
+        this.nextShape = new Shape('nextShape', {
+            x: 610,
+            y: 110
+        });
+
+        this.nextShape.movable = false;
+        this.nextString = new Text('nextString', {
+            text: 'Next',
+            x: 620,
+            y: 70
+        });
+
+        this.scoreString = new Text('scoreString', {
+            text: "Score: 0",
+            x: 50,
+            y: 70
+        });
+
+        this.linesString = new Text('linesString', {
+            text: "Lines: 0",
+            x: 50,
+            y: 120
         });
     }
 
@@ -125,9 +150,7 @@ export default class Grid extends Scene {
      * sprite onto the screen
      */
     setup() {
-        this.shape = this.createShape();
-
-        this.nextShape = null;
+        this.createShapes();
 
         this.map = this.createMap();
     }
@@ -139,12 +162,27 @@ export default class Grid extends Scene {
 
         // center map
         this.setMap(map, (TOTAL_WIDTH - map.width) / 2, (TOTAL_HEIGHT - map.height) / 2);
-        this.resetMap();
 
         map.addObject(this.shape);
 
+        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString]);
+
+        this.reset();
+    }
+
+    reset() {
+        this.score = 0;
+        this.level = 0;
+        this.lines = 0;
+        this.resetMap();
         this.shape.moveToTop();
         this.shape.setRandomShape();
+        this.nextShape.setRandomShape();
+        this.linesString.text = 'Lines: ' + this.lines;
+        this.scoreString.text = 'Score: ' + this.score;
+
+        this.shape.movable = true;
+        this.shape.behavior.reset();
     }
 
     /**
@@ -152,13 +190,7 @@ export default class Grid extends Scene {
      */
     gameover() {
         alert('game over!' + this.score);
-        this.score = 0;
-        this.level = 0;
-        this.resetMap();
-        this.shape.moveToTop();
-        this.shape.setRandomShape();
-        this.shape.movable = true;
-        this.shape.behavior.reset();
+        this.reset();
     }
 
     /**
@@ -167,6 +199,9 @@ export default class Grid extends Scene {
      * @param {Object} event the event object
      */
     onEvent(event) {
+        const nextShape = this.nextShape,
+            shape = this.shape;
+
         switch (event.type) {
             case 'shape:ground':
                 // update the map with the new shape
@@ -174,7 +209,9 @@ export default class Grid extends Scene {
                 // check for lines to remove
                 this.removeLinesFromMap(event.data.startLine, event.data.numRows);
                 // TODO: we should change the shape of the "next shape" instead
-                this.shape.setRandomShape();
+                shape.setShape(nextShape.shapeName, nextShape.rotation);
+                nextShape.setRandomShape();
+
                 this.shape.moveToTop();
                 // we may have a game over here: if the shape collides with another one
                 if (!this.shape.snapTile(0, 0, false)) {
@@ -258,7 +295,9 @@ export default class Grid extends Scene {
      */
     increaseScore(lines) {
         this.score += this.scoreTable[lines - 1] + this.level * this.scoreTable[lines - 1];
-        // TODO: update score element?
+        this.lines += lines;
+        this.linesString.text = 'Lines: ' + this.lines;
+        this.scoreString.text = 'Score: ' + this.score;
     }
 
     /**
@@ -292,5 +331,7 @@ export default class Grid extends Scene {
         }
 
         this.increaseScore(lines.length);
+
+        // TODO: increase level + send message to behavior ?
     }
 }
