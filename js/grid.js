@@ -124,18 +124,24 @@ export default class Grid extends Scene {
      * Called when the scene is ready: generates the map and adds the player's shape
      * sprite onto the screen
      */
-    onLoad() {
+    setup() {
         this.shape = this.createShape();
 
         this.nextShape = null;
 
-        const map = this.createMap();
+        this.map = this.createMap();
+    }
+
+    start() {
+        const map = this.map;
+
+        this.setBackgroundImage('img/background.png');
+
         // center map
         this.setMap(map, (TOTAL_WIDTH - map.width) / 2, (TOTAL_HEIGHT - map.height) / 2);
         this.resetMap();
-        this.setBackgroundImage('img/background.png');
 
-        this.map.addObject(this.shape);
+        map.addObject(this.shape);
 
         this.shape.moveToTop();
         this.shape.setRandomShape();

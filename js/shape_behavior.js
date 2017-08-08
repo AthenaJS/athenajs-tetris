@@ -87,7 +87,7 @@ class ShapeBehavior extends Behavior {
      * and updates its position when cursor keys are pressed or
      * the timer happened
      */
-    onMove(timestamp) {
+    onUpdate(timestamp) {
         const sprite = this.sprite;
 
         let key = 0;
