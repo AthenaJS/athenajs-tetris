@@ -6,11 +6,19 @@ const MAP_ROWS = 22,
     MAP_COLS = 12,
     TILE_WIDTH = 20,
     TILE_HEIGHT = 20,
+    // tile offsets in the spritesheet
     MAP_TILES_OFFSET_Y = 440,
     WALL_TILE_OFFSET_X = 140,
+    BACK_TILE_OFFSET_X = 160,
+    // wall tile number
     WALL_TILE = 8,
+    // game width
     TOTAL_WIDTH = 800,
-    TOTAL_HEIGHT = 600;
+    TOTAL_HEIGHT = 600,
+    // speed (drop delay) at start
+    START_TIMING = 1200,
+    // speed increase at each level
+    LEVEL_TIMING = 50;
 
 export default class Grid extends Scene {
     constructor() {
@@ -26,7 +34,7 @@ export default class Grid extends Scene {
         this.score = 0;
         this.level = 0;
         this.lines = 0;
-        this.timing = 1200;
+        this.timing = START_TIMING;
         this.scoreTable = [
             40,
             100,
@@ -65,7 +73,7 @@ export default class Grid extends Scene {
         }
 
         tiles.push({
-            offsetX: 160,
+            offsetX: BACK_TILE_OFFSET_X,
             offsetY: MAP_TILES_OFFSET_Y,
             width: TILE_WIDTH,
             height: TILE_HEIGHT
@@ -143,6 +151,12 @@ export default class Grid extends Scene {
             x: 50,
             y: 120
         });
+
+        this.levelString = new Text('levelString', {
+            text: "Level: 0",
+            x: 50,
+            y: 170
+        });
     }
 
     /**
@@ -165,7 +179,7 @@ export default class Grid extends Scene {
 
         map.addObject(this.shape);
 
-        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString]);
+        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString, this.levelString]);
 
         this.reset();
     }
@@ -174,12 +188,14 @@ export default class Grid extends Scene {
         this.score = 0;
         this.level = 0;
         this.lines = 0;
+        this.timing = START_TIMING;
         this.resetMap();
         this.shape.moveToTop();
         this.shape.setRandomShape();
         this.nextShape.setRandomShape();
         this.linesString.text = 'Lines: ' + this.lines;
         this.scoreString.text = 'Score: ' + this.score;
+        this.levelString.text = 'Level: ' + this.level;
 
         this.shape.movable = true;
         this.shape.behavior.reset();
@@ -223,14 +239,6 @@ export default class Grid extends Scene {
                 // set shape to movable
                 break;
         }
-    }
-
-    /**
-     * checks if the shape is at the top of the screen
-     */
-    isTop() {
-        const matrix = this.shape.getMatrix();
-
     }
 
     /**
@@ -289,6 +297,16 @@ export default class Grid extends Scene {
     }
 
     /**
+     * Updates level + level object's text
+     */
+    updateLevel() {
+        this.level = Math.floor(this.lines / 10);
+        this.levelString.text = 'Level: ' + this.level;
+        this.timing = START_TIMING - (this.level * LEVEL_TIMING);
+        this.shape.data.speed = this.timing;
+    }
+
+    /**
      * Updates the player's score using line number & current level
      * 
      * @param {Number} lines the number of lines that have been removed
@@ -331,7 +349,7 @@ export default class Grid extends Scene {
         }
 
         this.increaseScore(lines.length);
-
+        this.updateLevel();
         // TODO: increase level + send message to behavior ?
     }
 }
