@@ -1,4 +1,4 @@
-import { Scene, Map, Tile, Text } from 'athenajs';
+import { Scene, Map, Tile, Text, AudioManager as AM } from 'athenajs';
 import Shape from 'shape';
 
 // size constants
@@ -18,7 +18,7 @@ const MAP_ROWS = 22,
     // speed (drop delay) at start
     START_TIMING = 1200,
     // speed increase at each level
-    LEVEL_TIMING = 50;
+    LEVEL_TIMING = 55;
 
 export default class Grid extends Scene {
     constructor() {
@@ -27,6 +27,46 @@ export default class Grid extends Scene {
                 id: 'tiles',
                 type: 'image',
                 src: 'img/tetris_tiles.png'
+            },
+            {
+                id: 'gameover',
+                type: 'audio',
+                src: 'sound/gameover.mp3'
+            },
+            {
+                id: 'ground',
+                type: 'audio',
+                src: 'sound/ground.mp3'
+            },
+            {
+                id: 'level',
+                type: 'audio',
+                src: 'sound/level.mp3'
+            },
+            {
+                id: 'lines',
+                type: 'audio',
+                src: 'sound/lines.mp3'
+            },
+            {
+                id: 'lines_tetris',
+                type: 'audio',
+                src: 'sound/lines_tetris.mp3'
+            },
+            {
+                id: 'move',
+                type: 'audio',
+                src: 'sound/move.mp3'
+            },
+            {
+                id: 'pause',
+                type: 'audio',
+                src: 'sound/pause.mp3'
+            },
+            {
+                id: 'rotate',
+                type: 'audio',
+                src: 'sound/rotate.mp3'
             }]
         });
 
@@ -157,6 +197,13 @@ export default class Grid extends Scene {
             x: 50,
             y: 170
         });
+
+        this.pauseString = new Text('pauseString', {
+            text: "Pause",
+            x: 380,
+            y: 550,
+            visible: false
+        });
     }
 
     /**
@@ -179,7 +226,7 @@ export default class Grid extends Scene {
 
         map.addObject(this.shape);
 
-        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString, this.levelString]);
+        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString, this.levelString, this.pauseString]);
 
         this.reset();
     }
@@ -205,6 +252,7 @@ export default class Grid extends Scene {
      * Called on game over, simply displays the score in an alert box and restarts the game
      */
     gameover() {
+        AM.play('gameover');
         alert('game over!' + this.score);
         this.reset();
     }
@@ -300,10 +348,12 @@ export default class Grid extends Scene {
      * Updates level + level object's text
      */
     updateLevel() {
+        let oldLevel = this.level;
         this.level = Math.floor(this.lines / 10);
         this.levelString.text = 'Level: ' + this.level;
         this.timing = START_TIMING - (this.level * LEVEL_TIMING);
         this.shape.data.speed = this.timing;
+        oldLevel !== this.level && AM.play('level');
     }
 
     /**
@@ -316,6 +366,12 @@ export default class Grid extends Scene {
         this.lines += lines;
         this.linesString.text = 'Lines: ' + this.lines;
         this.scoreString.text = 'Score: ' + this.score;
+
+        if (lines === 4) {
+            AM.play('lines_tetris');
+        } else {
+            AM.play('lines');
+        }
     }
 
     /**
@@ -351,5 +407,10 @@ export default class Grid extends Scene {
         this.increaseScore(lines.length);
         this.updateLevel();
         // TODO: increase level + send message to behavior ?
+    }
+
+    pause(isRunning) {
+        this.pauseString.visible = !isRunning;
+        AM.play('pause');
     }
 }

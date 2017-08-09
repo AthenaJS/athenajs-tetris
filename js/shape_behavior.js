@@ -1,4 +1,4 @@
-import { Behavior, Tile, InputManager as IM } from 'athenajs';
+import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs';
 
 /**
  * Simple Behavior for the tetris shape that moves the shape on cursor key press
@@ -88,6 +88,12 @@ class ShapeBehavior extends Behavior {
         return false;
     }
 
+    checkKeyDelay(key, timestamp, x, y) {
+        if (this.ready(key, timestamp)) {
+            this.sprite.snapTile(x, y) && AM.play('move');
+        }
+    }
+
     /**
      * This method is called when updating the shape's position
      * and updates its position when cursor keys are pressed or
@@ -95,8 +101,6 @@ class ShapeBehavior extends Behavior {
      */
     onUpdate(timestamp) {
         const sprite = this.sprite;
-
-        let key = 0;
 
         // debug: stop the timer when t key is pressed
         if (IM.isKeyDown(84)) {
@@ -113,30 +117,17 @@ class ShapeBehavior extends Behavior {
 
         // Then checks cursor keys
         if (IM.isKeyDown('DOWN')) {
-            key = 1;
-            if (this.ready(key, timestamp)) {
-                sprite.snapTile(0, 1);
-            }
+            this.checkKeyDelay(1, timestamp, 0, 1);
         } else if (IM.isKeyDown('LEFT')) {
-            console.log('need to move to the left');
-            key = 2;
-
-            if (this.ready(key, timestamp)) {
-                sprite.snapTile(-1);
-            }
+            this.checkKeyDelay(2, timestamp, -1, 0);
         } else if (IM.isKeyDown('RIGHT')) {
-            console.log('right');
-            key = 3;
-            if (this.ready(key, timestamp)) {
-                sprite.snapTile(1);
-            }
+            this.checkKeyDelay(3, timestamp, 1, 0);
         } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
-            key = 4;
             this.lastRotation = timestamp;
             sprite.nextRotation();
-        } else if (this.state && !key) {
+        } else if (this.state) {
             // key released
-            this.ready(key, timestamp);
+            this.ready(0, timestamp);
         }
     }
 }

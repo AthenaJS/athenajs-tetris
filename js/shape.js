@@ -1,4 +1,4 @@
-import { Sprite, Tile } from 'athenajs';
+import { Sprite, Tile, AudioManager as AM } from 'athenajs';
 import ShapeBehavior from 'shape_behavior';
 
 export default class Shape extends Sprite {
@@ -144,7 +144,7 @@ export default class Shape extends Sprite {
      * 
      * @returns {Boolean} true if shape could be moved, false if a collision was detected
      */
-    snapTile(horizontal = 0, vertical = 0, notify = true) {
+    snapTile(horizontal = 0, vertical = 0, notify = true, noSound = false) {
         const map = this.currentMap,
             buffer = this.getMatrix(),
             tilePos = map.getTileIndexFromPixel(this.x, this.y),
@@ -155,6 +155,7 @@ export default class Shape extends Sprite {
         if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
             this.x += horizontal * map.tileWidth;
             this.y += vertical * map.tileHeight;
+
             return true;
         } else {
             // if a collision was detected and vertical == 1 it means the shape reached
@@ -163,6 +164,7 @@ export default class Shape extends Sprite {
             if (vertical === 1) {
                 this.movable = false;
                 if (notify) {
+                    AM.play('ground');
                     this.notify('ground', {
                         startLine: tilePos.y,
                         numRows: this.shape.height / map.tileHeight
@@ -194,6 +196,7 @@ export default class Shape extends Sprite {
         if (!map.checkMatrixForCollision(matrix, this.shape.width, tilePos.x, tilePos.y, Tile.TYPE.WALL)) {
             // change shape rotation if no collision detected
             this.setShape(this.shapeName, newRotation);
+            AM.play('rotate');
         } else {
             console.log('rotation not possible');
         }
