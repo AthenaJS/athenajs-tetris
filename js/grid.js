@@ -1,5 +1,6 @@
-import { Scene, Map, Tile, Text, AudioManager as AM } from 'athenajs';
+import { Scene, Map, Tile, Text, AudioManager as AM, Deferred } from 'athenajs';
 import Shape from 'shape';
+import FlashLines from 'flash_lines';
 
 // size constants
 const MAP_ROWS = 22,
@@ -204,6 +205,13 @@ export default class Grid extends Scene {
             y: 550,
             visible: false
         });
+
+        this.flashLines = new FlashLines('flash', {
+            x: (TOTAL_WIDTH - TILE_WIDTH * MAP_COLS) / 2 + TILE_WIDTH,
+            y: (TOTAL_HEIGHT - TILE_HEIGHT * MAP_ROWS) / 2,
+            w: (TILE_WIDTH) * (MAP_COLS - 2),
+            lineHeight: TILE_HEIGHT
+        });
     }
 
     /**
@@ -226,7 +234,7 @@ export default class Grid extends Scene {
 
         map.addObject(this.shape);
 
-        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString, this.levelString, this.pauseString]);
+        this.addObject([this.nextShape, this.nextString, this.linesString, this.scoreString, this.levelString, this.pauseString, this.flashLines]);
 
         this.reset();
     }
@@ -271,20 +279,19 @@ export default class Grid extends Scene {
                 // update the map with the new shape
                 this.updateMap();
                 // check for lines to remove
-                this.removeLinesFromMap(event.data.startLine, event.data.numRows);
-                // TODO: we should change the shape of the "next shape" instead
-                shape.setShape(nextShape.shapeName, nextShape.rotation);
-                nextShape.setRandomShape();
+                this.removeLinesFromMap(event.data.startLine, event.data.numRows).then(() => {
+                    shape.setShape(nextShape.shapeName, nextShape.rotation);
+                    nextShape.setRandomShape();
 
-                this.shape.moveToTop();
-                // we may have a game over here: if the shape collides with another one
-                if (!this.shape.snapTile(0, 0, false)) {
-                    this.gameover();
-                } else {
-                    this.shape.movable = true;
-                }
-                // set new next shape
-                // set shape to movable
+                    this.shape.moveToTop();
+
+                    // we may have a game over here: if the shape collides with another one
+                    if (!this.shape.snapTile(0, 0, false)) {
+                        this.gameover();
+                    } else {
+                        this.shape.movable = true;
+                    }
+                });
                 break;
         }
     }
@@ -387,26 +394,30 @@ export default class Grid extends Scene {
 
         // no full lines detected
         if (!lines.length) {
-            return;
+            let def = new Deferred();
+            def.resolve();
+            return def.promise;
         }
 
-        // shift the map for each line to remove
-        for (let i = 0; i < lines.length; ++i) {
-            map.shift(lines[i] + i, 1);
-        }
-
-        // add wall at each side of the new lines
-        for (let i = 0; i < height; ++i) {
-            for (let j = 0; j < map.numCols; ++j) {
-                map.updateTile(j, i, 0, Tile.TYPE.AIR);
+        this.flashLines.lines = lines;
+        return this.flashLines.flash().then(() => {
+            // shift the map for each line to remove
+            for (let i = 0; i < lines.length; ++i) {
+                map.shift(lines[i] + i, 1);
             }
-            map.updateTile(0, i, 8, Tile.TYPE.WALL);
-            map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
-        }
 
-        this.increaseScore(lines.length);
-        this.updateLevel();
-        // TODO: increase level + send message to behavior ?
+            // add wall at each side of the new lines
+            for (let i = 0; i < height; ++i) {
+                for (let j = 0; j < map.numCols; ++j) {
+                    map.updateTile(j, i, 0, Tile.TYPE.AIR);
+                }
+                map.updateTile(0, i, 8, Tile.TYPE.WALL);
+                map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
+            }
+
+            this.increaseScore(lines.length);
+            this.updateLevel();
+        });
     }
 
     pause(isRunning) {
