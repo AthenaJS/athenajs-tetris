@@ -3,8 +3,8 @@ import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs
 /**
  * Simple Behavior for the tetris shape that moves the shape on cursor key press
  * and when timer is reached
- * 
- * 
+ *
+ *
  * @see {Behavior}
  */
 class ShapeBehavior extends Behavior {
@@ -36,13 +36,13 @@ class ShapeBehavior extends Behavior {
     /**
      * When the player keeps a key down, we wait for a long delay before
      * quickly moving the picece: we don't want to miss interpret his move.
-     * 
+     *
      * If he quickly releases the key and quickly presses it, we have to
      * react though
-     * 
+     *
      * @param {Number} state the new state (key) pressed
      * @param {Number} timestamp current timestamp
-     * 
+     *
      * @returns {Boolean} true if we should to react to the action
      */
     ready(state, timestamp) {
@@ -69,9 +69,9 @@ class ShapeBehavior extends Behavior {
 
     /**
      * Checks tetris timer
-     * 
+     *
      * @param {Number} timestamp current update timestamp
-     * 
+     *
      * @returns {Boolean} true if timer was reached
      */
     timer(timestamp) {
@@ -122,7 +122,7 @@ class ShapeBehavior extends Behavior {
             this.checkKeyDelay(2, timestamp, -1, 0);
         } else if (IM.isKeyDown('RIGHT')) {
             this.checkKeyDelay(3, timestamp, 1, 0);
-        } else if (IM.isKeyDown('UP') && (timestamp - this.lastRotation > 150)) {
+        } else if (IM.isKeyDown('UP') || IM.isKeyDown('SPACE') && (timestamp - this.lastRotation > 150)) {
             this.lastRotation = timestamp;
             sprite.nextRotation();
         } else if (this.state) {

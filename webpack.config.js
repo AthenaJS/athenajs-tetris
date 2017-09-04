@@ -3,7 +3,6 @@ var path = require('path'),
 
 module.exports = {
     entry: [
-        'webpack-dev-server/client?http://127.0.0.1:8888',
         './js/tetris.js'
     ],
     output: {
