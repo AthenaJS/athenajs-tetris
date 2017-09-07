@@ -4,7 +4,7 @@ import ShapeBehavior from 'shape_behavior';
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
         super('shape', Object.assign({}, {
-            imageSrc: 'tiles',
+            imageId: 'tiles',
             easing: 'linear',
             behavior: ShapeBehavior
         }, options));
