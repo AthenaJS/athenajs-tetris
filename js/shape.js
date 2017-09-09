@@ -13,17 +13,17 @@ export default class Shape extends Sprite {
          * Hardcoded tetris shapes. In addition to its width/height, color and
          * name, each shape contains a rotation a matrix for each rotation
          * that looks like:
-         * 
+         *
          *  ---
          * |J
          * |JJJ
          * |
          *  ---
-         * 
+         *
          * Matrix: [1, 0, 0,
          *          1, 1, 1
          *          0, 0, 0]
-         * 
+         *
          * Each shape contains four different rotations
          */
         this.shapes = [
@@ -101,7 +101,7 @@ export default class Shape extends Sprite {
 
     /**
      * Changes the sprite's shape and rotation
-     * 
+     *
      * @param {String} name the name of the shape
      * @param {Number} rotation the rotation number
      */
@@ -115,19 +115,32 @@ export default class Shape extends Sprite {
     /**
      * Pick a new random shape
      */
-    setRandomShape() {
+    setRandomShape(animate) {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
 
-        this.setShape(shapeName, rotation);
+        if (!this.movable) {
+            this.animate('Fade', {
+                duration: 200,
+                startValue: 1,
+                endValue: 0
+            }).then(() => {
+                this.setShape(shapeName, rotation);
+                this.animate('Fade', {
+                    duration: 200,
+                    startValue: 0,
+                    endValue: 1
+                });
+            })
+        }
     }
 
     /**
      * Returns current matrix for the shape
-     * 
+     *
      * @param {Number} rotation rotation number: set to -1 to return current rotation
      * or any number to get the matrix for this particular rotation
-     * 
+     *
      * @returns {Array} the matrix
      */
     getMatrix(rotation = -1) {
@@ -137,11 +150,11 @@ export default class Shape extends Sprite {
     /**
      * Move the shape on the map by a certain number of tiles, optionnaly sending an event
      * of a collision is detected
-     * 
+     *
      * @param {Number} horizontal horizontal number of tiles to shift
      * @param {Number} vertical vertical number of tiles to move
      * @param {Boolean = true} notify set to true to send a notification
-     * 
+     *
      * @returns {Boolean} true if shape could be moved, false if a collision was detected
      */
     snapTile(horizontal = 0, vertical = 0, notify = true, noSound = false) {

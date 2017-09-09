@@ -15,7 +15,7 @@ export default class FlashLines extends Canvas {
             endValue: 0,
             duration: 400,
             loop: 2
-        })
+        });
     }
 
     render() {

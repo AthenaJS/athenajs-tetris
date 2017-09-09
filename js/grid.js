@@ -86,7 +86,7 @@ export default class Grid extends Scene {
 
   /**
      * Generate tileset for the tetris map, mostly hardcoded stuff
-     * 
+     *
      * @returns {Array} The tileset for the map
      */
   generateTileSet() {
@@ -276,7 +276,7 @@ export default class Grid extends Scene {
 
   /**
      * This method is called whenever an event that has been registered is received
-     * 
+     *
      * @param {Object} event the event object
      */
   onEvent(event) {
@@ -333,10 +333,10 @@ export default class Grid extends Scene {
   /**
      * returns the number of lines that contains no hole, starting from
      * startLine up to startLine + height
-     * 
+     *
      * @param {Number} startLine the first line to remove
      * @param {Number} height the number of lines to remove
-     * 
+     *
      * @returns {Array} an array containing the line numbers that are full, sorted
      * from the bottom to the top
      */
@@ -376,7 +376,7 @@ export default class Grid extends Scene {
 
   /**
      * Updates the player's score using line number & current level
-     * 
+     *
      * @param {Number} lines the number of lines that have been removed
      */
   increaseScore(lines) {
@@ -396,7 +396,7 @@ export default class Grid extends Scene {
   /**
      * Removes lines from the map, shifting the map as needed, and adding
      * empty tiles at the top
-     * 
+     *
      * @param {Number} startLine the first line to remove
      * @param {Number} height the number of lines to remove
      */
