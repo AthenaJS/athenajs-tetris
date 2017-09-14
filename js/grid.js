@@ -257,9 +257,9 @@ export default class Grid extends Scene {
     this.shape.moveToTop();
     this.shape.setRandomShape();
     this.nextShape.setRandomShape();
-    this.linesString.text = "Lines: " + this.lines;
-    this.scoreString.text = "Score: " + this.score;
-    this.levelString.text = "Level: " + this.level;
+    this.linesString.setText("Lines: " + this.lines);
+    this.scoreString.setText("Score: " + this.score);
+    this.levelString.setText("Level: " + this.level);
 
     this.shape.movable = true;
     this.shape.behavior.reset();
@@ -368,7 +368,7 @@ export default class Grid extends Scene {
   updateLevel() {
     let oldLevel = this.level;
     this.level = Math.floor(this.lines / 10);
-    this.levelString.text = "Level: " + this.level;
+    this.levelString.setText("Level: " + this.level);
     this.timing = START_TIMING - this.level * LEVEL_TIMING;
     this.shape.data.speed = this.timing;
     oldLevel !== this.level && AM.play("level");
@@ -383,8 +383,8 @@ export default class Grid extends Scene {
     this.score +=
       this.scoreTable[lines - 1] + this.level * this.scoreTable[lines - 1];
     this.lines += lines;
-    this.linesString.text = "Lines: " + this.lines;
-    this.scoreString.text = "Score: " + this.score;
+    this.linesString.setText("Lines: " + this.lines);
+    this.scoreString.setText("Score: " + this.score);
 
     if (lines === 4) {
       AM.play("lines_tetris");
