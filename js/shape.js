@@ -232,7 +232,7 @@ export default class Shape extends Sprite {
         this.shapes.forEach((shape) => {
             let offsetX = 0;
             for (let i = 0; i < 4; ++i) {
-                this.addAnimation(`${shape.name}${i}`, 'img/tetris_tiles.png', {
+                this.addAnimation(`${shape.name}${i}`, 'tiles', {
                     offsetY: offsetY, offsetX: offsetX, frameWidth: shape.width, frameHeight: shape.height, frameDuration: 1, numFrames: 1
                 });
                 offsetX += shape.width;
