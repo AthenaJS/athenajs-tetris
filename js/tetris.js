@@ -1,5 +1,5 @@
 import { Game } from 'athenajs';
-import Grid from 'grid';
+import Grid from './grid';
 
 const tetris = new Game({
     name: 'athena-tetris',

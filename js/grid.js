@@ -1,6 +1,6 @@
 import { Scene, Map, Tile, Text, AudioManager as AM, Deferred } from "athenajs";
-import Shape from "shape";
-import FlashLines from "flash_lines";
+import Shape from "./shape";
+import FlashLines from "./flash_lines";
 
 // size constants
 const MAP_ROWS = 22,
