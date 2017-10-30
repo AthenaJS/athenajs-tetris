@@ -255,6 +255,7 @@ export default class Grid extends Scene {
     this.timing = START_TIMING;
     this.resetMap();
     this.shape.moveToTop();
+
     this.shape.setRandomShape();
     this.nextShape.setRandomShape();
     this.linesString.setText("Lines: " + this.lines);

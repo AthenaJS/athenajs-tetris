@@ -3,7 +3,7 @@ import ShapeBehavior from './shape_behavior';
 
 export default class Shape extends Sprite {
     constructor(name, options = {}) {
-        super('shape', Object.assign({}, {
+        super(name, Object.assign({}, {
             imageId: 'tiles',
             easing: 'linear',
             behavior: ShapeBehavior
@@ -119,6 +119,8 @@ export default class Shape extends Sprite {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
 
+        console.log('shapeName', this.type, shapeName);
+
         if (!this.movable) {
             this.animate('Fade', {
                 duration: 200,
@@ -132,6 +134,8 @@ export default class Shape extends Sprite {
                     endValue: 1
                 });
             })
+        } else {
+            this.setShape(shapeName, rotation);
         }
     }
 
