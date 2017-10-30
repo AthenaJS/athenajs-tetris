@@ -21,7 +21,7 @@ export default class FlashLines extends Canvas {
     render() {
         for (let i = 0; i < this.lines.length; ++i) {
             const line = this.lines[i];
-            this.rect(0, line * this.lineHeight, this.w, this.lineHeight, 'white');
+            this.rect(0, line * this.lineHeight, this.width, this.lineHeight, 'white');
         }
     }
 }

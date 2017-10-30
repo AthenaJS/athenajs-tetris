@@ -206,7 +206,7 @@ export default class Grid extends Scene {
     this.flashLines = new FlashLines("flash", {
       x: (TOTAL_WIDTH - TILE_WIDTH * MAP_COLS) / 2 + TILE_WIDTH,
       y: (TOTAL_HEIGHT - TILE_HEIGHT * MAP_ROWS) / 2,
-      w: TILE_WIDTH * (MAP_COLS - 2),
+      width: TILE_WIDTH * (MAP_COLS - 2),
       lineHeight: TILE_HEIGHT
     });
   }
