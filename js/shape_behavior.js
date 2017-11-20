@@ -8,8 +8,8 @@ import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs
  * @see {Behavior}
  */
 class ShapeBehavior extends Behavior {
-    constructor(sprite, Input, options) {
-        super(sprite, Input, options);
+    constructor(sprite, options) {
+        super(sprite, options);
 
         // current behavior state: moving right, left, top, bottom
         this.state = 0;

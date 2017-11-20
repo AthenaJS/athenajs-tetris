@@ -1,4 +1,4 @@
-import { Scene, Map, Tile, Text, AudioManager as AM, Deferred } from "athenajs";
+import { Scene, Map, Tile, Dom, Text, AudioManager as AM, Deferred } from "athenajs";
 import Shape from "./shape";
 import FlashLines from "./flash_lines";
 
@@ -425,6 +425,11 @@ export default class Grid extends Scene {
         map.updateTile(0, i, 8, Tile.TYPE.WALL);
         map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
       }
+
+      Dom('.athena-game').addClass('shake-vertical shake-constant');
+      setTimeout(() => {
+        Dom('.athena-game').removeClass('shake-vertical shake-constant');
+      }, 300);
 
       this.increaseScore(lines.length);
       this.updateLevel();
