@@ -1,4 +1,4 @@
-import { Scene, Map, Tile, Dom, Text, AudioManager as AM, Deferred } from "athenajs";
+import { Scene, Map, Tile, Dom, SimpleText, AudioManager as AM, Deferred } from "athenajs";
 import Shape from "./shape";
 import FlashLines from "./flash_lines";
 
@@ -172,31 +172,31 @@ export default class Grid extends Scene {
     });
 
     this.nextShape.movable = false;
-    this.nextString = new Text("nextString", {
+    this.nextString = new SimpleText("nextString", {
       text: "Next",
       x: 620,
       y: 70
     });
 
-    this.scoreString = new Text("scoreString", {
+    this.scoreString = new SimpleText("scoreString", {
       text: "Score: 0",
       x: 50,
       y: 70
     });
 
-    this.linesString = new Text("linesString", {
+    this.linesString = new SimpleText("linesString", {
       text: "Lines: 0",
       x: 50,
       y: 120
     });
 
-    this.levelString = new Text("levelString", {
+    this.levelString = new SimpleText("levelString", {
       text: "Level: 0",
       x: 50,
       y: 170
     });
 
-    this.pauseString = new Text("pauseString", {
+    this.pauseString = new SimpleText("pauseString", {
       text: "Pause",
       x: 380,
       y: 550,
