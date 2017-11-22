@@ -23,6 +23,6 @@
     "webpack-notifier": "1.5.0"
   },
   "dependencies": {
-    "athenajs": "0.0.4"
+    "athenajs": "0.1.0"
   }
 }
