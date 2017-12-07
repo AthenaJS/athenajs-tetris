@@ -119,7 +119,7 @@ export default class Shape extends Sprite {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
 
-        console.log('shapeName', this.type, shapeName);
+        console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
 
         if (!this.movable) {
             this.animate('Fade', {

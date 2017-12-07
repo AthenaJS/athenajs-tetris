@@ -342,7 +342,7 @@ export default class Grid extends Scene {
      * from the bottom to the top
      */
   getLinesToRemove(startLine, height) {
-    console.log("getting lines to remove");
+    console.log("[Grid] getLinesToRemove()");
     const map = this.map;
     let lines = [],
       lastLine = startLine + height - 1;
