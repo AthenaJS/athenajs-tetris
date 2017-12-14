@@ -1,6 +1,6 @@
-import { Canvas } from 'athenajs';
+import { Paint } from 'athenajs';
 
-export default class FlashLines extends Canvas {
+export default class FlashLines extends Paint {
     constructor(name, options = {}) {
         super('flashlines', Object.assign({}, {
         }, options));
