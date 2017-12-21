@@ -1,7 +1,7 @@
 import { Sprite, Tile, AudioManager as AM } from 'athenajs';
 import ShapeBehavior from './shape_behavior';
 
-export default class Shape extends Sprite {
+class Shape extends Sprite {
     constructor(name, options = {}) {
         super(name, Object.assign({}, {
             imageId: 'tiles',
@@ -245,3 +245,5 @@ export default class Shape extends Sprite {
         });
     }
 }
+
+export default Shape;

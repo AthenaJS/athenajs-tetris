@@ -21,7 +21,7 @@ const MAP_ROWS = 22,
   // speed increase at each level
   LEVEL_TIMING = 55;
 
-export default class Grid extends Scene {
+class Grid extends Scene {
   constructor() {
     super({
       resources: [
@@ -203,6 +203,12 @@ export default class Grid extends Scene {
       visible: false
     });
 
+    this.controls = new SimpleText("controlsString", {
+      text: "Controls:\narrow keys",
+      x: 50,
+      y: 220
+    });
+
     this.flashLines = new FlashLines("flash", {
       x: (TOTAL_WIDTH - TILE_WIDTH * MAP_COLS) / 2 + TILE_WIDTH,
       y: (TOTAL_HEIGHT - TILE_HEIGHT * MAP_ROWS) / 2,
@@ -242,7 +248,8 @@ export default class Grid extends Scene {
       this.scoreString,
       this.levelString,
       this.pauseString,
-      this.flashLines
+      this.flashLines,
+      this.controls
     ]);
 
     this.reset();
@@ -441,3 +448,5 @@ export default class Grid extends Scene {
     AM.play("pause");
   }
 }
+
+export default Grid;

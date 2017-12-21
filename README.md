@@ -19,6 +19,10 @@ npm install && npm start
 
 This will install dependencies, build athenajs-tetris and start a development server at `http:/127.0.0.1:8888`
 
+## Credits
+
+ - Sounds: The Essential Retro Video Game Sound Effects Collection by [Juhani Junkala](juhani.junkala@musician.org)
+
 ## License
 
 Copyright (c) Nicolas Ramz.
