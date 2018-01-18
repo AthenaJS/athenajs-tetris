@@ -443,7 +443,7 @@ class Grid extends Scene {
     });
   }
 
-  pause(isRunning) {
+  onPause(isRunning) {
     this.pauseString.visible = !isRunning;
     AM.play("pause");
   }
