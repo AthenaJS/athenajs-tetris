@@ -1,4 +1,5 @@
-import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs';
+import { Behavior, InputManager as IM, AudioManager as AM } from 'athenajs';
+import Shape from './shape';
 
 /**
  * Simple Behavior for the tetris shape that moves the shape on cursor key press
@@ -8,7 +9,17 @@ import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs
  * @see {Behavior}
  */
 class ShapeBehavior extends Behavior {
-    constructor(sprite, options) {
+    state: number;
+    lastRotation: number;
+    ts: number;
+    LONG_DELAY: number;
+    SMALL_DELAY: number;
+    delay: number;
+    key: number;
+    timerEnabled: boolean;
+    startTime: number;
+
+    constructor(sprite:Shape, options:any) {
         super(sprite, options);
 
         // current behavior state: moving right, left, top, bottom
@@ -45,7 +56,7 @@ class ShapeBehavior extends Behavior {
      *
      * @returns {Boolean} true if we should to react to the action
      */
-    ready(state, timestamp) {
+    ready(state:number, timestamp:number):boolean {
         // if the player pressed a different key
         // we react immediately but have to wait a long_delay
         // before repeating the key if he keeps pressing it
@@ -74,7 +85,7 @@ class ShapeBehavior extends Behavior {
      *
      * @returns {Boolean} true if timer was reached
      */
-    timer(timestamp) {
+    timer(timestamp:number):boolean {
         const sprite = this.sprite;
         if (!this.startTime) {
             this.startTime = timestamp;
@@ -88,9 +99,10 @@ class ShapeBehavior extends Behavior {
         return false;
     }
 
-    checkKeyDelay(key, timestamp, x, y) {
+    checkKeyDelay(key: number, timestamp: number, x: number, y: number): void {
+        const sprite = this.sprite as Shape;
         if (this.ready(key, timestamp)) {
-            this.sprite.snapTile(x, y) && AM.play('move');
+            sprite.snapTile(x, y) && AM.play('move');
         }
     }
 
@@ -99,8 +111,8 @@ class ShapeBehavior extends Behavior {
      * and updates its position when cursor keys are pressed or
      * the timer happened
      */
-    onUpdate(timestamp) {
-        const sprite = this.sprite;
+    onUpdate(timestamp:number) {
+        const sprite = this.sprite as Shape;
 
         // debug: stop the timer when t key is pressed
         if (IM.isKeyDown(84)) {

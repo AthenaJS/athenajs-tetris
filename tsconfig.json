@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "target": "es5",
+    "sourceMap": false,
+    "allowJs": true,
+    "lib": [
+        "es5",
+        "es6",
+        "es2015.iterable",
+        "dom"
+    ]
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

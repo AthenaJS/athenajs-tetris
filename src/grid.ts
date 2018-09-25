@@ -22,6 +22,33 @@ const MAP_ROWS = 22,
   LEVEL_TIMING = 55;
 
 class Grid extends Scene {
+  // game parameters
+  score: number;
+  level: number;
+  timing: number;
+  lines: number;
+  scoreTable: number[];
+
+  // game sprites
+  // current tetris shape
+  shape: Shape;
+  // next tetris shape
+  nextShape: Shape;
+  // next tetris string
+  nextString: SimpleText;
+  // score
+  scoreString: SimpleText;
+  // "line:"
+  linesString: SimpleText;
+  // "level:"
+  levelString: SimpleText;
+  // "pause:"
+  pauseString: SimpleText;
+  // flashing lines
+  flashLines: FlashLines;
+  // ->, <-
+  controls: SimpleText;
+
   constructor() {
     super({
       resources: [
@@ -287,7 +314,7 @@ class Grid extends Scene {
      *
      * @param {Object} event the event object
      */
-  onEvent(event) {
+  onEvent(event:any) {
     const nextShape = this.nextShape,
       shape = this.shape;
 
@@ -348,7 +375,7 @@ class Grid extends Scene {
      * @returns {Array} an array containing the line numbers that are full, sorted
      * from the bottom to the top
      */
-  getLinesToRemove(startLine, height) {
+  getLinesToRemove(startLine:number, height:number):number[] {
     console.log("[Grid] getLinesToRemove()");
     const map = this.map;
     let lines = [],
@@ -387,7 +414,7 @@ class Grid extends Scene {
      *
      * @param {Number} lines the number of lines that have been removed
      */
-  increaseScore(lines) {
+  increaseScore(lines:number) {
     this.score +=
       this.scoreTable[lines - 1] + this.level * this.scoreTable[lines - 1];
     this.lines += lines;
@@ -408,7 +435,7 @@ class Grid extends Scene {
      * @param {Number} startLine the first line to remove
      * @param {Number} height the number of lines to remove
      */
-  removeLinesFromMap(startLine, height) {
+  removeLinesFromMap(startLine:number, height:number) {
     const map = this.map,
       lines = this.getLinesToRemove(startLine, height);
 
@@ -443,7 +470,7 @@ class Grid extends Scene {
     });
   }
 
-  pause(isRunning) {
+  pause(isRunning:boolean) {
     this.pauseString.visible = !isRunning;
     AM.play("pause");
   }

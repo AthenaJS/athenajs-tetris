@@ -1,13 +1,29 @@
 import { Sprite, Tile, AudioManager as AM } from 'athenajs';
 import ShapeBehavior from './shape_behavior';
 
+interface shapeDescription {
+    name: string,
+    width: number,
+    height: number,
+    color: number,
+    rotations: number[][]
+}
+
 class Shape extends Sprite {
-    constructor(name, options = {}) {
-        super(name, Object.assign({}, {
+    shapes: shapeDescription[];
+    // current shape
+    shape: shapeDescription;
+    shapeName: string;
+    // current shape rotation
+    rotation: number;
+
+    constructor(name:string, options = {}) {
+        super(name, {
             imageId: 'tiles',
             easing: 'linear',
-            behavior: ShapeBehavior
-        }, options));
+            behavior: ShapeBehavior,
+            ...options
+        });
 
         /**
          * Hardcoded tetris shapes. In addition to its width/height, color and
@@ -93,10 +109,12 @@ class Shape extends Sprite {
      * Moves the shape at the top center of the map
      */
     moveToTop() {
-        const map = this.currentMap,
-            col = Math.floor(((map.width - this.shape.width) / 2) / map.tileWidth);
+        if (this.shape) {
+            const map = this.currentMap,
+                col = Math.floor(((map.width - this.shape.width) / 2) / map.tileWidth);
 
-        this.moveTo(col * map.tileWidth, 0);
+            this.moveTo(col * map.tileWidth, 0);
+        }
     }
 
     /**
@@ -105,21 +123,21 @@ class Shape extends Sprite {
      * @param {String} name the name of the shape
      * @param {Number} rotation the rotation number
      */
-    setShape(name, rotation) {
+    setShape(name:string, rotation:number) {
         this.shapeName = name;
         this.rotation = rotation;
-        this.shape = this.shapes.find((shape) => shape.name === this.shapeName);
+        this.shape = this.shapes.find((shape) => shape.name === this.shapeName) || this.shapes[0];
         this.setAnimation(`${name}${rotation}`);
     }
 
     /**
      * Pick a new random shape
      */
-    setRandomShape(animate) {
+    setRandomShape() {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
 
-        console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
+        console.log(`[Shape] setRandomShape() - ${shapeName}`);
 
         if (!this.movable) {
             this.animate('Fade', {
