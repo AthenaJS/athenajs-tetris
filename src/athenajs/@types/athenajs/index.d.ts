@@ -7,42 +7,98 @@ declare module 'athenajs' {
     export class Scene{
         constructor(options?: SceneOptions);
         map: Map;
+        hudScene: Scene | null;
+        running: boolean;
         addObject(object: Drawable): Scene;
         addObject(array: Array<Drawable>): Scene;
         animate(fxName: string, options: EffectOptions): Promise;
         bindEvents(eventList: String): void;
-        fadeIn(duration: number): void;
-        fadeOut(duration: number): void;
+        fadeIn(duration: number): Promise;
+        fadeOut(duration: number): Promise;
         fadeInAndOut(inDuration: number, delay: number, outDuration: number): Promise;
+        getOpacity(): number;
         loadAudio(src: string, id?: string | null): void;
         loadImage(src: string, id: string): void;
+        notify(name: string, data?: JSObject): void;
         setBackgroundImage(image:String|HTMLImageElement): void;
         setLayerPriority(layer: number, background: boolean): void;
-        setMap(map:Map|Object, x?:number, y?:number):void;
+        setMap(map: Map | Object, x?: number, y?: number): void;
+        setOpacity(opacity: number): void;
+        start(): void;
+        stop(): void;
     }
     export class Game {
         constructor(options: GameOptions);
         setScene(scene: Scene): void;
+        toggleSound(bool: boolean): void;
+        scene: Scene;
+        sound: boolean;
     }
     export class Drawable{
         constructor(type: string, options: DrawableOptions);
+        addChild(child:Drawable): void;
         animate(name: string, options: object): Promise;
+        center(): Drawable;
+        destroy(data?:any): void;
         moveTo(x: number, y: number, duration?: number): Drawable;
-        notify(id:string, data:object): void;
-        setAnimation(name: string): void;
+        notify(id: string, data: object): void;
+        onCollision?(object: Drawable): void;
+        onEvent?(eventType: string, data?: JSObject): void;
+        playSound(id: string, options?: { pan?: boolean, loop?: false }): void;
+        setBehavior(behavior: string | Behavior, options?: JSObject): void;
         setScale(scale: number): void;
+        getCurrentWidth(): number;
+        getCurrentHeight(): number;
+        getProperty<T>(prop: string): T;
+        setProperty<T>(prop: string, value: T): void;
+        setMask(mask: MaskOptions | null, exclude: boolean): void;
+        stopAnimate(endValue?: number): void;
+        reset(): void;
+        show(): void;
+        hide(): void;
+        type: string;
         width: number;
         height: number;
         x:number;
         y:number;
         vx:number;
         vy: number;
+        canCollide: boolean;
+        currentMovement: string;
+        running: boolean;
         movable: boolean;
         behavior: Behavior;
         currentMap: Map;
         data: any;
         visible: boolean;
     }
+
+    export interface MaskOptions{
+        x: number,
+        y: number,
+        width: number,
+        height: number
+    }
+
+    export interface MenuItem {
+        text: string,
+        selectable: boolean,
+        visible: boolean,
+        active?: boolean
+    }
+
+    export interface MenuOptions {
+        title: string,
+        color: string,
+        menuItems: MenuItem[]
+    }
+
+    export class Menu extends Drawable{
+        constructor(id: string, options: MenuOptions);
+        nextItem(): void;
+        getSelectedItemIndex(): number;
+    }
+
     export class SimpleText extends Drawable{
         constructor(type: string, simpleTextOptions: SimpleTextOptions);
         setText(text: string): void;
@@ -58,11 +114,14 @@ declare module 'athenajs' {
 
     export class BitmapText extends Drawable{
         constructor(type: string, textOptions: BitmapTextOptions);
+        setText(text: string): void;
     }
 
     export class Sprite extends Drawable {
         constructor(type: string, spriteOptions: SpriteOptions);
-        addAnimation(name: string, imgPath: string, options: AnimOptions):void
+        addAnimation(name: string, imgPath: string, options: AnimOptions): void;
+        setAnimation(name: string, fn?: Callback, frameNum?: number, revert?: boolean): void;
+        clearMove(): void;
     }
 
     interface pixelPos {
@@ -79,6 +138,7 @@ declare module 'athenajs' {
         getTileBehaviorAtIndex(col:number, row:number): number;
         getTileIndexFromPixel(x: number, y: number): pixelPos;
         moveTo(x: number, y: number): void;
+        respawn(): void;
         setData(map: Uint8Array, behaviors: Uint8Array): void;
         setEasing(easing: string): void;
         shift(startLine:number, height:number): void;
@@ -672,6 +732,33 @@ declare module 'athenajs' {
 
     export const AudioManager: _AudioManager;
 
+    interface Res {
+        id: string,
+        type: string,
+        src: string
+    }
+
+    export type Callback = (...args: any[]) => void;
+
+    interface _NotificationManager {
+        notify(name: string, data?: JSObject): void;
+    }
+
+    export const NotificationManager: _NotificationManager;
+
+    interface _ResourceManager {
+        addResources(resource: Res, group?: string): Promise;
+        getCanvasFromImage(image: HTMLImageElement): HTMLCanvasElement;
+        getResourceById(id: string, group?: string, fullObject?: boolean): any;
+        loadResources(group: string, progressCb?: Callback, errorCb?: Callback): void;
+        loadImage(res: Res, group?: string): Promise;
+        loadAudio(res: Res, group?: string): Promise;
+        newResourceFromPool(id: string): any;
+        registerScript(id: string, elt: any, poolSize?: number): void;
+    }
+
+    export const ResourceManager: _ResourceManager;
+
     interface _InputManager {
  /**
      * A list of common keyCodes
@@ -1161,13 +1248,15 @@ declare module 'athenajs' {
     }
 
     /* Game Support */
-    interface GameOptions{
+    export interface GameOptions{
         name: string,
         showFps: boolean,
         width: number,
         height: number,
         debug: boolean,
-        scene?: Scene
+        scene?: Scene,
+        target?: string | HTMLElement,
+        sound?:boolean
     }
 
     interface SceneOptions{
@@ -1192,7 +1281,19 @@ declare module 'athenajs' {
     }
 
     interface SpriteOptions {
-
+        x?: number,
+        y?: number
+        pool?: number,
+        easing?:string,
+        behavior?:{new(sprite:Drawable, options:BehaviorOptions):Behavior},
+        imageId?: string,
+        canCollide?: boolean,
+        canCollideFriendBullet?: boolean,
+        animations?: JSObject,
+        collideGroup?: number,
+        map?: Map,
+        data?: JSObject,
+        objectId?:string
     }
 
     interface BehaviorOptions {
@@ -1206,5 +1307,14 @@ declare module 'athenajs' {
         frameDuration: number,
         offsetX?: number,
         offsetY?: number
+    }
+
+    type JSObject = {
+        [key: string]: any
+    }
+
+    export interface GameEvent {
+        type: string,
+        data: JSObject
     }
 }
