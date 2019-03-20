@@ -204,7 +204,7 @@ class Grid extends Scene {
     });
 
     this.controls = new SimpleText("controlsString", {
-      text: "Controls:\narrow keys",
+      text: "Move:  ← → ↓ \n\nRotate: ↑\n\nFullscreen: f\n\nPause: p",
       x: 50,
       y: 220
     });
@@ -303,10 +303,11 @@ class Grid extends Scene {
           shape.setShape(nextShape.shapeName, nextShape.rotation);
           nextShape.setRandomShape();
 
-          this.shape.moveToTop();
+          shape.moveToTop();
+          shape.behavior.reset();
 
           // we may have a game over here: if the shape collides with another one
-          if (!this.shape.snapTile(0, 0, false)) {
+          if (!shape.snapTile(0, 0, false)) {
             this.gameover();
           } else {
             this.shape.movable = true;

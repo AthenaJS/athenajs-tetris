@@ -11,7 +11,7 @@
   "author": "Nicolas Ramz",
   "license": "MIT",
   "devDependencies": {
-    "@types/athenajs": "^0.1.0",
+    "@types/athenajs": "~0.1.0",
     "babel-core": "6.24.1",
     "babel-loader": "6.4.1",
     "babel-preset-es2015": "6.24.1",
@@ -25,6 +25,6 @@
     "webpack-notifier": "1.5.0"
   },
   "dependencies": {
-    "athenajs": "0.1.0"
+    "athenajs": "~0.1.0"
   }
 }

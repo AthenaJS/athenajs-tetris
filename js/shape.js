@@ -151,6 +151,21 @@ class Shape extends Sprite {
         return this.shape.rotations[rotation === -1 ? this.rotation : rotation];
     }
 
+    snapTile2(horizontal = 0, vertical = 0) {
+        const map = this.currentMap,
+            buffer = this.getMatrix(),
+            tilePos = map.getTileIndexFromPixel(this.x, this.y),
+            newX = tilePos.x + horizontal,
+            newY = tilePos.y + vertical;
+
+        if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
+            console.log('moving to', this.x + (horizontal * map.tileWidth));
+            this.moveTo(this.x + (horizontal * map.tileWidth), this.y, 80);
+        } else {
+            return 0;
+        }
+    }
+
     /**
      * Move the shape on the map by a certain number of tiles, optionnaly sending an event
      * of a collision is detected
@@ -170,26 +185,36 @@ class Shape extends Sprite {
 
         // first check there is no collision with walls
         if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
-            this.x += horizontal * map.tileWidth;
-            this.y += vertical * map.tileHeight;
+            //this.x += horizontal * map.tileWidth;
+            //this.y += vertical * map.tileHeight;
+            this.y += vertical;
+            this.x += horizontal;
 
             return true;
         } else {
             // if a collision was detected and vertical == 1 it means the shape reached
             // the ground: in this case we send a notification for the grid
             // and make the shape stop responding to user input or timer
-            if (vertical === 1) {
-                this.movable = false;
-                if (notify) {
-                    AM.play('ground');
-                    this.notify('ground', {
-                        startLine: tilePos.y,
-                        numRows: this.shape.height / map.tileHeight
-                    });
-                }
-            }
+            // if (vertical === 1) {
+            //     // this.movable = false;
+            //     if (notify) {
+            //         AM.play('ground');
+            //         this.notify('ground', {
+            //             startLine: tilePos.y,
+            //             numRows: this.shape.height / map.tileHeight
+            //         });
+            //     }
+            // }
+
             return false;
         }
+    }
+
+    getStartLine() {
+        const map = this.currentMap,
+            tilePos = map.getTileIndexFromPixel(this.x, this.y);
+
+        return tilePos.y;
     }
 
     /**

@@ -1,4 +1,5 @@
 import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs';
+import { cpus } from 'os';
 
 /**
  * Simple Behavior for the tetris shape that moves the shape on cursor key press
@@ -11,7 +12,7 @@ class ShapeBehavior extends Behavior {
     constructor(sprite, options) {
         super(sprite, options);
 
-        // current behavior state: moving right, left, top, bottom
+        // current behavior state: moving down === 1, left === 2, right === 3
         this.state = 0;
         // when lastRotation happened
         this.lastRotation = 0;
@@ -20,6 +21,8 @@ class ShapeBehavior extends Behavior {
         this.LONG_DELAY = 250;
         // repeat-delay once the long delay has been reached
         this.SMALL_DELAY = 70;
+
+        this.xToMove = 0;
 
         this.reset();
     }
@@ -31,11 +34,13 @@ class ShapeBehavior extends Behavior {
         this.delay = this.LONG_DELAY;
         this.key = 0;
         this.timerEnabled = true;
+        this.startTime = 0;
+        this.ground = false;
     }
 
     /**
      * When the player keeps a key down, we wait for a long delay before
-     * quickly moving the picece: we don't want to miss interpret his move.
+     * quickly moving the piece: we don't want to miss-interpret his move.
      *
      * If he quickly releases the key and quickly presses it, we have to
      * react though
@@ -81,7 +86,7 @@ class ShapeBehavior extends Behavior {
         } else {
             if (timestamp - this.startTime > sprite.data.speed) {
                 // timer reached
-                this.startTime = timestamp;
+                this.startTime = 0;
                 return true;
             }
         }
@@ -109,19 +114,38 @@ class ShapeBehavior extends Behavior {
         }
 
         // first check timer
-        if (this.timerEnabled && this.timer(timestamp)) {
+        if (this.timerEnabled/* && this.timer(timestamp)*/) {
             // timer reached: move the sprite down
-            sprite.snapTile(0, 1);
-            return;
+            if (!this.ground) {
+                // console.log('moving down');
+                this.ground = !sprite.snapTile(0, 1);
+                if (this.ground) {
+                    console.log('ground', this.ground);
+                }
+            } else if (this.timer(timestamp)) {
+                console.log('timer');
+                AM.play('ground');
+                sprite.notify('ground', {
+                    startLine: sprite.getStartLine(),
+                    numRows: sprite.shape.height / sprite.currentMap.tileHeight
+                });
+            }
         }
 
         // Then checks cursor keys
         if (IM.isKeyDown('DOWN')) {
-            this.checkKeyDelay(1, timestamp, 0, 1);
-        } else if (IM.isKeyDown('LEFT')) {
-            this.checkKeyDelay(2, timestamp, -1, 0);
-        } else if (IM.isKeyDown('RIGHT')) {
-            this.checkKeyDelay(3, timestamp, 1, 0);
+            // this.checkKeyDelay(1, timestamp, 0, 1);
+            console.log('down');
+            if (!this.ground) {
+                sprite.snapTile(0, 2);
+            }
+        } else if (IM.isKeyDown('LEFT') && !this.moving) {
+            console.log('snapTile');
+            sprite.snapTile2(-1);
+            // this.checkKeyDelay(2, timestamp, -1, 0);
+        } else if (IM.isKeyDown('RIGHT') && !this.moving) {
+            sprite.snapTile2(1);
+            // this.checkKeyDelay(3, timestamp, 1, 0);
         } else if ((IM.isKeyDown('UP') || IM.isKeyDown('SPACE')) && (timestamp - this.lastRotation > 150)) {
             this.lastRotation = timestamp;
             sprite.nextRotation();
