@@ -419,6 +419,7 @@ class Grid extends Scene {
     }
 
     this.flashLines.lines = lines;
+    console.log('flash');
     return this.flashLines.flash().then(() => {
       // shift the map for each line to remove
       for (let i = 0; i < lines.length; ++i) {

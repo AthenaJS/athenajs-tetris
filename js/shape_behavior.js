@@ -166,7 +166,8 @@ class ShapeBehavior extends Behavior {
             // }
         }
 
-        if (this.ground) {
+        if (this.ground && sprite.movable) {
+            sprite.movable = false;
             AM.play('ground');
             sprite.notify('ground', {
                 startLine: sprite.getStartLine(),
