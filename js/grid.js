@@ -3,7 +3,7 @@ import Shape from "./shape";
 import FlashLines from "./flash_lines";
 
 // size constants
-const MAP_ROWS = 22,
+export const MAP_ROWS = 22,
   MAP_COLS = 12,
   TILE_WIDTH = 20,
   TILE_HEIGHT = 20,

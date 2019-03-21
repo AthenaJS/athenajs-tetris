@@ -1,5 +1,5 @@
-import { Behavior, Tile, InputManager as IM, AudioManager as AM } from 'athenajs';
-import { cpus } from 'os';
+import { Behavior, InputManager as IM, AudioManager as AM } from 'athenajs';
+import { TILE_HEIGHT } from './grid';
 
 /**
  * Simple Behavior for the tetris shape that moves the shape on cursor key press
@@ -35,6 +35,7 @@ class ShapeBehavior extends Behavior {
         this.key = 0;
         this.timerEnabled = true;
         this.startTime = 0;
+        this.startY = this.sprite.y;
         this.ground = false;
     }
 
@@ -81,16 +82,44 @@ class ShapeBehavior extends Behavior {
      */
     timer(timestamp) {
         const sprite = this.sprite;
+
         if (!this.startTime) {
             this.startTime = timestamp;
+            this.startY = sprite.y;
         } else {
-            if (timestamp - this.startTime > sprite.data.speed) {
+            const diff = timestamp - this.startTime;
+            if (diff > sprite.data.speed) {
                 // timer reached
-                this.startTime = 0;
+                this.startTime = timestamp;
+                if (sprite.snapTile(0, 1)) {
+                    sprite.y = this.startY + TILE_HEIGHT;
+                    this.startY = sprite.y;
+                } else {
+                    // set groundTimer
+                    this.ground = true;
+                }
                 return true;
+            } else {
+                this.moveShapeDown(diff);
             }
         }
         return false;
+    }
+
+    moveShapeDown(duration, force) {
+        const sprite = this.sprite;
+        const pixels = (duration * TILE_HEIGHT) / sprite.data.speed;
+        console.log('moveShapeDown', pixels);
+        if (sprite.snapTile(0, 1)) {
+            if (force) {
+                this.startY += 4;
+                sprite.y += 4;
+            } else {
+                sprite.y = this.startY + pixels;
+            }
+        } else {
+            this.ground = true;
+        }
     }
 
     checkKeyDelay(key, timestamp, x, y) {
@@ -113,32 +142,41 @@ class ShapeBehavior extends Behavior {
             return;
         }
 
+
+        if (this.timerEnabled) {
+            this.timer(timestamp);
+        }
+
         // first check timer
         if (this.timerEnabled/* && this.timer(timestamp)*/) {
             // timer reached: move the sprite down
-            if (!this.ground) {
-                // console.log('moving down');
-                this.ground = !sprite.snapTile(0, 1);
-                if (this.ground) {
-                    console.log('ground', this.ground);
-                }
-            } else if (this.timer(timestamp)) {
-                console.log('timer');
-                AM.play('ground');
-                sprite.notify('ground', {
-                    startLine: sprite.getStartLine(),
-                    numRows: sprite.shape.height / sprite.currentMap.tileHeight
-                });
-            }
+            // if (!this.ground) {
+            //     // console.log('moving down');
+            //     this.ground = !sprite.snapTile(0, 1);
+            //     if (this.ground) {
+            //         console.log('ground', this.ground);
+            //     }
+            // } else if (this.timer(timestamp)) {
+            //     console.log('timer');
+            //     AM.play('ground');
+            //     sprite.notify('ground', {
+            //         startLine: sprite.getStartLine(),
+            //         numRows: sprite.shape.height / sprite.currentMap.tileHeight
+            //     });
+            // }
         }
 
-        // Then checks cursor keys
-        if (IM.isKeyDown('DOWN')) {
+        if (this.ground) {
+            AM.play('ground');
+            sprite.notify('ground', {
+                startLine: sprite.getStartLine(),
+                numRows: sprite.shape.height / sprite.currentMap.tileHeight
+            });
+        } else if (IM.isKeyDown('DOWN') && !this.ground) {
             // this.checkKeyDelay(1, timestamp, 0, 1);
             console.log('down');
-            if (!this.ground) {
-                sprite.snapTile(0, 2);
-            }
+            // sprite.snapTile(0, 1);
+            this.moveShapeDown(0, true);
         } else if (IM.isKeyDown('LEFT') && !this.moving) {
             console.log('snapTile');
             sprite.snapTile2(-1);

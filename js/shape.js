@@ -187,8 +187,8 @@ class Shape extends Sprite {
         if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
             //this.x += horizontal * map.tileWidth;
             //this.y += vertical * map.tileHeight;
-            this.y += vertical;
-            this.x += horizontal;
+            // this.y += vertical;
+            // this.x += horizontal;
 
             return true;
         } else {
