@@ -5,7 +5,7 @@ class Shape extends Sprite {
     constructor(name, options = {}) {
         super(name, Object.assign({}, {
             imageId: 'tiles',
-            easing: 'linear',
+            easing: 'swing',
             behavior: ShapeBehavior
         }, options));
 
@@ -96,7 +96,27 @@ class Shape extends Sprite {
         const map = this.currentMap,
             col = Math.floor(((map.width - this.shape.width) / 2) / map.tileWidth);
 
-        this.moveTo(col * map.tileWidth, 0);
+        this.moveTo(col * map.tileWidth, this.getStartY());
+        // this.moveTo(5, 0);
+        console.log(this, this.x);
+    }
+
+    getStartY() {
+        const map = this.currentMap;
+        const matrix = this.shape.rotations[this.rotation];
+        const cols = this.shape.width / map.tileWidth;
+        const rows = matrix.length / cols;
+        let i = rows,
+            found = false;
+
+        while (i >= 0 && !found) {
+            i--;
+            for (let j = 0; j < cols; ++j) {
+                found = found || matrix[i * cols + j];
+            }
+        }
+
+        return -(i + 1) * map.tileHeight;
     }
 
     /**
@@ -118,6 +138,8 @@ class Shape extends Sprite {
     setRandomShape(animate) {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
+        // const shapeName = this.shapes[3].name,
+        //     rotation = 0;
 
         console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
 
@@ -154,17 +176,53 @@ class Shape extends Sprite {
     snapTile2(horizontal = 0, vertical = 0) {
         const map = this.currentMap,
             buffer = this.getMatrix(),
-            tilePos = map.getTileIndexFromPixel(this.x, this.y),
-            newX = tilePos.x + horizontal,
-            newY = tilePos.y + vertical;
+            shapeWidth = this.getCurrentWidth() / map.tileWidth,
+            shapeHeight = this.getCurrentHeight() / map.tileWidth,
+            nextTilePos = map.getTileIndexFromPixel(this.x + horizontal, this.y + vertical, false),
+            startX = Math.floor(nextTilePos.x),
+            endX = startX + (Number.isInteger(nextTilePos.x) ? shapeWidth - 1 : shapeWidth),
+            startY = Math.floor(nextTilePos.y),
+            endY = startY + (Number.isInteger(nextTilePos.y) ? shapeHeight - 1 : shapeHeight);
 
-        if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
-            console.log('moving to', this.x + (horizontal * map.tileWidth));
-            this.moveTo(this.x + (horizontal * map.tileWidth), this.y, 80);
+        let hit = false;
+
+        // if (this.id.match(/^shape/) && this.x >= 173) {
+        //     debugger;
+        // }
+
+        hit = map.checkMatrixForCollision2(buffer, this.shape.width, startX, endX, startY, endY, Tile.TYPE.WALL);
+
+        // if (this.x <= -7)
+        //     debugger;
+
+        // if (this.x >= 179)
+        //     debugger;
+        console.log('snapTile2', this.x, this.y);
+        if (!hit) {
+            // console.log('moving to', this.x + (horizontal * map.tileWidth));
+            // this.moveTo(this.x + (horizontal * map.tileWidth), vertical, duration);
+            // if (this.x >= 160) {
+            //     debugger;
+            //     map.checkMatrixForCollision2(buffer, this.shape.width, startX, endX, startY, endY, Tile.TYPE.WALL)
+            // }
+            this.x += horizontal;
+            // console.log('movex', this.x);
         } else {
+            // use returned tileIndex to get new horizontal: newX = (tilePos * mapNumCols) - 1 - this.currentWidth
+            // TODO: align to leftmost (horizontal < 0) or (horizontal > 0) rightmost tile
+            if (horizontal < 0) {
+                // debugger;
+                this.x = Math.floor(this.x / map.tileWidth) * map.tileWidth;
+            } else {
+                this.x = Math.ceil(this.x / map.tileWidth) * map.tileWidth;
+            }
+            // this.x = (hit.i * map.numCols) - this.getCurrentWidth() - 1;
+
             return 0;
         }
     }
+
+
 
     /**
      * Move the shape on the map by a certain number of tiles, optionnaly sending an event
@@ -174,7 +232,7 @@ class Shape extends Sprite {
      * @param {Number} vertical vertical number of tiles to move
      * @param {Boolean = true} notify set to true to send a notification
      *
-     * @returns {Boolean} true if shape could be moved, false if a collision was detected
+     * @returns {Boolean}  true if shape could be moved, false if a collision was detected
      */
     snapTile(horizontal = 0, vertical = 0, notify = true, noSound = false) {
         const map = this.currentMap,

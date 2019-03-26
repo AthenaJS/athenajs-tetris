@@ -17,7 +17,7 @@ export const MAP_ROWS = 22,
   TOTAL_WIDTH = 800,
   TOTAL_HEIGHT = 600,
   // speed (drop delay) at start
-  START_TIMING = 1200,
+  START_TIMING = 2400,
   // speed increase at each level
   LEVEL_TIMING = 55;
 
@@ -264,6 +264,7 @@ class Grid extends Scene {
     this.shape.moveToTop();
 
     this.shape.setRandomShape();
+    this.shape.moveToTop();
     this.nextShape.setRandomShape();
     this.linesString.setText("Lines: " + this.lines);
     this.scoreString.setText("Score: " + this.score);
@@ -448,6 +449,9 @@ class Grid extends Scene {
   pause(isRunning) {
     this.pauseString.visible = !isRunning;
     AM.play("pause");
+    if (this.shape && isRunning) {
+      this.shape.behavior.startTime = 0;
+    }
   }
 }
 
