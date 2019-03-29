@@ -62,16 +62,19 @@ class ShapeBehavior extends Behavior {
             if (diff > sprite.data.speed) {
                 // timer reached
                 this.startTime = timestamp;
-                if (sprite.snapTile(0, 1)) {
+                const move = sprite.moveOverGrid(0, 1, true);
+                if (move.y) {
                     sprite.y = this.startY + TILE_HEIGHT;
                     this.startY = sprite.y;
                 } else if (!this.ground) {
-                    console.log('ground do nothing');
+                    console.log('*** ground do nothing');
+                    // align sprite over tile because it may be a pixel off
+                    sprite.y = this.startY + TILE_HEIGHT;
                     // collision detected but we do not react yet:
                     // we have to wait for another timer to be reached
                     this.ground = true;
                 } else if (sprite.movable) {
-                    console.log('onCollide');
+                    console.log('*** onCollide');
                     // collision detected and another timer reached
                     this.onCollide();
                 }
@@ -96,19 +99,44 @@ class ShapeBehavior extends Behavior {
 
     moveShapeDown(duration, force) {
         const sprite = this.sprite;
-        const pixels = (duration * TILE_HEIGHT) / sprite.data.speed;
+        const pixels = force ? 4 : ((duration * TILE_HEIGHT) / sprite.data.speed) - (sprite.y - this.startY);
         // console.log('moveShapeDown', pixels);
-        if (sprite.snapTile(0, 1)) {
+        const oldx = sprite.x,
+            oldy = sprite.y;
+        // console.log('=====');
+        // console.log('pixels', pixels);
+        // console.log('avant move', sprite.y);
+
+        const move = sprite.moveOverGrid(0, pixels, this.ground);
+
+        // debug
+
+        if (move.y && move.y > 0) {
             if (force) {
-                // FIXME: don't go too far, snap tile only tests one px below
-                this.startY += 4;
-                sprite.y += 4;
+                this.startY += move.y;
             } else {
-                sprite.y = this.startY + pixels;
+                // sprite.y = this.startY + move.y;
             }
         } else {
             this.ground = true;
         }
+        // console.log('apres move', sprite.y);
+
+        if (sprite.y < oldy) {
+            debugger;
+        }
+        // console.log('=====');
+        // if (move.x === pixels) {
+        //     if (force) {
+        //         // FIXME: don't go too far, snap tile only tests one px below
+        //         this.startY += 4;
+        //         sprite.y += 4;
+        //     } else {
+        //         sprite.y = this.startY + pixels;
+        //     }
+        // } else {
+        //     this.ground = true;
+        // }
     }
 
     /**
@@ -132,12 +160,15 @@ class ShapeBehavior extends Behavior {
 
         if (this.key === LEFT && !IM.isKeyDown('LEFT')) {
             console.log('left released');
-            // moveTo
             this.key = 0;
+            sprite.snapToTile(-1);
         } else if (this.key === RIGHT && !IM.isKeyDown('RIGHT')) {
             console.log('right released');
             this.key = 0;
-            // moveTo
+            sprite.snapToTile(1);
+        } else if (this.key === DOWN && !IM.isKeyDown('DOWN')) {
+            console.log('down released');
+            this.key = 0;
         }
 
         if (IM.isKeyDown('DOWN') && !this.ground) {
@@ -145,14 +176,18 @@ class ShapeBehavior extends Behavior {
             console.log('down');
             this.moveShapeDown(0, true);
         } else if (IM.isKeyDown('LEFT')) {
-            // cancelMoveTo
             this.key = LEFT;
-            sprite.snapTile2(-3, 0);
+            if (sprite.moving) {
+                sprite.cancelMoveTo();
+            }
+            sprite.moveOverGrid(-3, 0);
             // this.checkKeyDelay(2, timestamp, -1, 0);
         } else if (IM.isKeyDown('RIGHT')) {
-            // cancelMoveTo            
             this.key = RIGHT;
-            sprite.snapTile2(3, 0);
+            if (sprite.moving) {
+                sprite.cancelMoveTo();
+            }
+            sprite.moveOverGrid(3, 0);
             // this.checkKeyDelay(3, timestamp, 1, 0);
         } else if ((IM.isKeyDown('UP') || IM.isKeyDown('SPACE')) && (timestamp - this.lastRotation > 150)) {
             this.lastRotation = timestamp;

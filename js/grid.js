@@ -17,7 +17,7 @@ export const MAP_ROWS = 22,
   TOTAL_WIDTH = 800,
   TOTAL_HEIGHT = 600,
   // speed (drop delay) at start
-  START_TIMING = 2400,
+  START_TIMING = 1800,
   // speed increase at each level
   LEVEL_TIMING = 55;
 
@@ -301,6 +301,8 @@ class Grid extends Scene {
           event.data.startLine,
           event.data.numRows
         ).then(() => {
+          // TODO: test that first matrix element inside shape is
+          // in the map, then and only then, add a new shape
           shape.setShape(nextShape.shapeName, nextShape.rotation);
           nextShape.setRandomShape();
 
@@ -308,7 +310,8 @@ class Grid extends Scene {
           shape.behavior.reset();
 
           // we may have a game over here: if the shape collides with another one
-          if (!shape.snapTile(0, 0, false)) {
+          const move = shape.snapTile2(0, 1, true);
+          if (!move.y) {
             this.gameover();
           } else {
             this.shape.movable = true;
@@ -326,7 +329,7 @@ class Grid extends Scene {
     const shape = this.shape,
       data = this.shape.shape,
       map = this.map,
-      pos = map.getTileIndexFromPixel(shape.x, shape.y),
+      pos = this.shape.getTilePos(),
       buffer = shape.getMatrix(),
       rows = data.height / map.tileHeight,
       cols = data.width / map.tileWidth;

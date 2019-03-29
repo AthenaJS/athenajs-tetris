@@ -5,7 +5,7 @@ class Shape extends Sprite {
     constructor(name, options = {}) {
         super(name, Object.assign({}, {
             imageId: 'tiles',
-            easing: 'swing',
+            easing: 'easeOutQuad',
             behavior: ShapeBehavior
         }, options));
 
@@ -97,6 +97,7 @@ class Shape extends Sprite {
             col = Math.floor(((map.width - this.shape.width) / 2) / map.tileWidth);
 
         this.moveTo(col * map.tileWidth, this.getStartY());
+        this.movable = true;
         // this.moveTo(5, 0);
         console.log(this, this.x);
     }
@@ -173,7 +174,16 @@ class Shape extends Sprite {
         return this.shape.rotations[rotation === -1 ? this.rotation : rotation];
     }
 
-    snapTile2(horizontal = 0, vertical = 0) {
+    /**
+     * Attempts to move the shape of the specified amount of pixels onto the map
+     * 
+     * @param {number} [horizontal=0]
+     * @param {number} [vertical=0]
+     * @param {boolean} [testOnly=false] set to true to only perform test
+     * 
+     * @returns {object} an object containing the number of pixels that the piece moved. eg. {x:5, y:4}
+     */
+    moveOverGrid(horizontal = 0, vertical = 0, testOnly = false) {
         const map = this.currentMap,
             buffer = this.getMatrix(),
             shapeWidth = this.getCurrentWidth() / map.tileWidth,
@@ -184,7 +194,9 @@ class Shape extends Sprite {
             startY = Math.floor(nextTilePos.y),
             endY = startY + (Number.isInteger(nextTilePos.y) ? shapeHeight - 1 : shapeHeight);
 
-        let hit = false;
+        let hit = false,
+            xDiff = horizontal,
+            yDiff = vertical;
 
         // if (this.id.match(/^shape/) && this.x >= 173) {
         //     debugger;
@@ -197,7 +209,7 @@ class Shape extends Sprite {
 
         // if (this.x >= 179)
         //     debugger;
-        console.log('snapTile2', this.x, this.y);
+        // console.log('snapTile2', this.x, this.y);
         if (!hit) {
             // console.log('moving to', this.x + (horizontal * map.tileWidth));
             // this.moveTo(this.x + (horizontal * map.tileWidth), vertical, duration);
@@ -205,72 +217,87 @@ class Shape extends Sprite {
             //     debugger;
             //     map.checkMatrixForCollision2(buffer, this.shape.width, startX, endX, startY, endY, Tile.TYPE.WALL)
             // }
-            this.x += horizontal;
+            if (!testOnly) {
+                this.x += horizontal;
+                this.y += vertical;
+            }
             // console.log('movex', this.x);
         } else {
             // use returned tileIndex to get new horizontal: newX = (tilePos * mapNumCols) - 1 - this.currentWidth
             // TODO: align to leftmost (horizontal < 0) or (horizontal > 0) rightmost tile
-            if (horizontal < 0) {
-                // debugger;
-                this.x = Math.floor(this.x / map.tileWidth) * map.tileWidth;
-            } else {
-                this.x = Math.ceil(this.x / map.tileWidth) * map.tileWidth;
+            if (horizontal) {
+                let old = this.x;
+                if (!testOnly) {
+                    if (horizontal < 0) {
+                        this.x = Math.floor(this.x / map.tileWidth) * map.tileWidth;
+                    } else {
+                        this.x = Math.ceil(this.x / map.tileWidth) * map.tileWidth;
+                    }
+                }
+                xDiff = this.x - old;
+            }
+
+
+            if (vertical) {
+                let old = this.y;
+                if (!testOnly) {
+                    if (vertical < 0) {
+                        this.y = Math.floor(this.y / map.tileHeight) * map.tileHeight;
+                    } else {
+                        this.y = Math.ceil(this.y / map.tileHeight) * map.tileHeight;
+                    }
+                }
+                yDiff = this.y - old;
             }
             // this.x = (hit.i * map.numCols) - this.getCurrentWidth() - 1;
-
-            return 0;
         }
+
+        return { x: xDiff, y: yDiff };
     }
 
-
-
     /**
-     * Move the shape on the map by a certain number of tiles, optionnaly sending an event
-     * of a collision is detected
-     *
-     * @param {Number} horizontal horizontal number of tiles to shift
-     * @param {Number} vertical vertical number of tiles to move
-     * @param {Boolean = true} notify set to true to send a notification
-     *
-     * @returns {Boolean}  true if shape could be moved, false if a collision was detected
+     * snaps the Shape on a tile, based on current direction
+     * 
+     * @param {number} [horizontal=0]
      */
-    snapTile(horizontal = 0, vertical = 0, notify = true, noSound = false) {
-        const map = this.currentMap,
-            buffer = this.getMatrix(),
-            tilePos = map.getTileIndexFromPixel(this.x, this.y),
-            newX = tilePos.x + horizontal,
-            newY = tilePos.y + vertical;
+    snapToTile(horizontal = 0) {
+        const isLeft = horizontal < 0,
+            map = this.currentMap,
+            pos = map.getTileIndexFromPixel(this.x, this.y, false),
+            decimal = pos.x % 1,
+            absDecimal = Math.abs(decimal);
 
-        // first check there is no collision with walls
-        if (!map.checkMatrixForCollision(buffer, this.shape.width, newX, newY, Tile.TYPE.WALL)) {
-            //this.x += horizontal * map.tileWidth;
-            //this.y += vertical * map.tileHeight;
-            // this.y += vertical;
-            // this.x += horizontal;
+        let targetX = 0;
 
-            return true;
+        // so close to a tile that we snap to it
+        if (absDecimal && (absDecimal <= 0.1 || absDecimal >= 0.9)) {
+            console.log('cas special');
+            if (absDecimal <= 0.1) {
+                targetX = decimal < 0 ? Math.ceil(pos.x) * map.tileWidth : Math.floor(pos.x) * map.tileWidth;
+            } else {
+                targetX = decimal < 0 ? Math.floor(pos.x) * map.tileWidth : Math.ceil(pos.x) * map.tileWidth;
+            }
+            console.log('moving to', this.x, targetX, '(' + pos.x + ', ' + (isLeft ? pos.x | 0 : Math.ceil(pos.x)) + ')');
+            this.moveTo(targetX, undefined, 0);
         } else {
-            // if a collision was detected and vertical == 1 it means the shape reached
-            // the ground: in this case we send a notification for the grid
-            // and make the shape stop responding to user input or timer
-            // if (vertical === 1) {
-            //     // this.movable = false;
-            //     if (notify) {
-            //         AM.play('ground');
-            //         this.notify('ground', {
-            //             startLine: tilePos.y,
-            //             numRows: this.shape.height / map.tileHeight
-            //         });
-            //     }
-            // }
-
-            return false;
+            console.log('cas normal');
+            targetX = isLeft ? ((pos.x | 0) * map.tileWidth) : Math.ceil(pos.x) * map.tileWidth;
+            console.log('moving to', this.x, targetX, '(' + pos.x + ', ' + (isLeft ? pos.x | 0 : Math.ceil(pos.x)) + ')');
+            this.moveTo(targetX, undefined, Math.abs(10 * (targetX - this.x)));
         }
+
+        // cas particulier: moveTo direct si fractionnal part >= 95 ou <= 5
+
+    }
+
+    getTilePos() {
+        const map = this.currentMap;
+
+        return map.getTileIndexFromPixel(this.x < 0 ? Math.floor(this.x) : Math.ceil(this.x), this.y < 0 ? Math.floor(this.y) : Math.ceil(this.y));
     }
 
     getStartLine() {
-        const map = this.currentMap,
-            tilePos = map.getTileIndexFromPixel(this.x, this.y);
+        const tilePos = this.getTilePos();
 
         return tilePos.y;
     }
