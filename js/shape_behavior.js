@@ -59,7 +59,9 @@ class ShapeBehavior extends Behavior {
             this.startY = sprite.y;
         } else {
             const diff = timestamp - this.startTime;
-            if (diff > sprite.data.speed) {
+            const duration = this.ground ? sprite.data.speed > 2 : sprite.data.speed;
+
+            if (diff > duration) {
                 // timer reached
                 this.startTime = timestamp;
                 const move = sprite.moveOverGrid(0, 1, true);
@@ -169,12 +171,16 @@ class ShapeBehavior extends Behavior {
         } else if (this.key === DOWN && !IM.isKeyDown('DOWN')) {
             console.log('down released');
             this.key = 0;
+            this.timerEnabled = true;
         }
 
         if (IM.isKeyDown('DOWN') && !this.ground) {
             // this.checkKeyDelay(1, timestamp, 0, 1);
             console.log('down');
             this.moveShapeDown(0, true);
+            this.timerEnabled = false;
+            this.startTime = 0;
+            this.key = DOWN;
         } else if (IM.isKeyDown('LEFT')) {
             this.key = LEFT;
             if (sprite.moving) {

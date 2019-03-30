@@ -8,7 +8,7 @@ export const MAP_ROWS = 22,
   TILE_WIDTH = 20,
   TILE_HEIGHT = 20,
   // tile offsets in the spritesheet
-  MAP_TILES_OFFSET_Y = 440,
+  MAP_TILES_OFFSET_Y = 454,
   WALL_TILE_OFFSET_X = 140,
   BACK_TILE_OFFSET_X = 160,
   // wall tile number
@@ -28,7 +28,7 @@ class Grid extends Scene {
         {
           id: "tiles",
           type: "image",
-          src: "img/tetris_tiles.png"
+          src: "img/tetris_tiles_xl.png"
         },
         {
           id: "gameover",

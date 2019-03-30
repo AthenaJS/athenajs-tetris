@@ -349,9 +349,9 @@ class Shape extends Sprite {
                 this.addAnimation(`${shape.name}${i}`, 'tiles', {
                     offsetY: offsetY, offsetX: offsetX, frameWidth: shape.width, frameHeight: shape.height, frameDuration: 1, numFrames: 1
                 });
-                offsetX += shape.width;
+                offsetX += shape.width + 2;
             }
-            offsetY += shape.height;
+            offsetY += shape.height + 2;
         });
     }
 }
