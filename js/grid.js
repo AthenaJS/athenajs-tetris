@@ -210,8 +210,8 @@ class Grid extends Scene {
     });
 
     this.flashLines = new FlashLines("flash", {
-      x: (TOTAL_WIDTH - TILE_WIDTH * MAP_COLS) / 2 + TILE_WIDTH,
-      y: (TOTAL_HEIGHT - TILE_HEIGHT * MAP_ROWS) / 2,
+      x: TILE_WIDTH,
+      y: 0,
       width: TILE_WIDTH * (MAP_COLS - 2),
       lineHeight: TILE_HEIGHT
     });
@@ -239,7 +239,9 @@ class Grid extends Scene {
       (TOTAL_HEIGHT - map.height) / 2
     );
 
+    map.addObject(this.flashLines);
     map.addObject(this.shape);
+
 
     this.addObject([
       this.nextShape,
@@ -248,7 +250,6 @@ class Grid extends Scene {
       this.scoreString,
       this.levelString,
       this.pauseString,
-      this.flashLines,
       this.controls
     ]);
 
