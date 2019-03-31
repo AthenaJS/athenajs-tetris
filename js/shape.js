@@ -126,11 +126,31 @@ class Shape extends Sprite {
      * @param {String} name the name of the shape
      * @param {Number} rotation the rotation number
      */
-    setShape(name, rotation) {
+    setShape(name, rotation, duration = 0) {
         this.shapeName = name;
         this.rotation = rotation;
         this.shape = this.shapes.find((shape) => shape.name === this.shapeName);
-        this.setAnimation(`${name}${rotation}`);
+        this.setAnimation(`${name}0`);
+
+        if (name === 'O') {
+            this.angle = 0;
+        } else {
+            if (duration) {
+                console.log(this.angle);
+                this.animate('Rotate', {
+                    startValue: this.angle,
+                    endValue: !rotation ? Math.PI * 2 : this.rotation * (Math.PI / 2),
+                    duration: duration,
+                    easing: 'easeOutQuad'
+                }).then(() => {
+                    if (!rotation) {
+                        this.angle = 0;
+                    }
+                })
+            } else {
+                this.angle = this.rotation * (Math.PI / 2);
+            }
+        }
     }
 
     /**
@@ -145,12 +165,30 @@ class Shape extends Sprite {
         console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
 
         if (!this.movable) {
+            this.animate('Custom', {
+                startValue: 1,
+                endValue: .3,
+                duration: 200,
+                easing: 'easeOutQuad',
+                callback: val => {
+                    this.setScale(val);
+                }
+            });
             this.animate('Fade', {
                 duration: 200,
                 startValue: 1,
                 endValue: 0
             }).then(() => {
                 this.setShape(shapeName, rotation);
+                this.animate('Custom', {
+                    startValue: 2,
+                    endValue: 1,
+                    duration: 200,
+                    easing: 'easeOutQuad',
+                    callback: val => {
+                        this.setScale(val);
+                    }
+                });
                 this.animate('Fade', {
                     duration: 200,
                     startValue: 0,
@@ -322,7 +360,7 @@ class Shape extends Sprite {
 
         if (!map.checkMatrixForCollision(matrix, this.shape.width, tilePos.x, tilePos.y, Tile.TYPE.WALL)) {
             // change shape rotation if no collision detected
-            this.setShape(this.shapeName, newRotation);
+            this.setShape(this.shapeName, newRotation, 80);
             AM.play('rotate');
         } else {
             console.log('rotation not possible');

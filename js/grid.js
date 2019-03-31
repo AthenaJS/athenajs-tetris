@@ -311,7 +311,7 @@ class Grid extends Scene {
           shape.behavior.reset();
 
           // we may have a game over here: if the shape collides with another one
-          const move = shape.snapTile2(0, 1, true);
+          const move = shape.moveOverGrid(0, 1, true);
           if (!move.y) {
             this.gameover();
           } else {
