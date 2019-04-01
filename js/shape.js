@@ -28,7 +28,7 @@ class Shape extends Sprite {
          */
         this.shapes = [
             {
-                name: 'I', width: 80, height: 80, color: 7, rotations: [
+                name: 'I', width: 80, height: 80, color: 6, rotations: [
                     [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                     [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
                     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
@@ -36,7 +36,7 @@ class Shape extends Sprite {
                 ]
             },
             {
-                name: 'J', width: 60, height: 60, color: 6, rotations: [
+                name: 'J', width: 60, height: 60, color: 5, rotations: [
                     [1, 0, 0, 1, 1, 1, 0, 0, 0],
                     [0, 1, 1, 0, 1, 0, 0, 1, 0],
                     [0, 0, 0, 1, 1, 1, 0, 0, 1],
@@ -44,7 +44,7 @@ class Shape extends Sprite {
                 ]
             },
             {
-                name: 'L', width: 60, height: 60, color: 5, rotations: [
+                name: 'L', width: 60, height: 60, color: 4, rotations: [
                     [0, 0, 1, 1, 1, 1, 0, 0, 0],
                     [0, 1, 0, 0, 1, 0, 0, 1, 1],
                     [0, 0, 0, 1, 1, 1, 1, 0, 0],
@@ -52,15 +52,15 @@ class Shape extends Sprite {
                 ]
             },
             {
-                name: 'O', width: 80, height: 60, color: 4, rotations: [
-                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-                    [0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0]
+                name: 'O', width: 80, height: 40, color: 3, rotations: [
+                    [0, 1, 1, 0, 0, 1, 1, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0],
+                    [0, 1, 1, 0, 0, 1, 1, 0]
                 ]
             },
             {
-                name: 'S', width: 60, height: 60, color: 3, rotations: [
+                name: 'S', width: 60, height: 60, color: 2, rotations: [
                     [0, 1, 1, 1, 1, 0, 0, 0, 0],
                     [0, 1, 0, 0, 1, 1, 0, 0, 1],
                     [0, 0, 0, 0, 1, 1, 1, 1, 0],
@@ -68,7 +68,7 @@ class Shape extends Sprite {
                 ]
             },
             {
-                name: 'Z', width: 60, height: 60, color: 2, rotations: [
+                name: 'Z', width: 60, height: 60, color: 1, rotations: [
                     [1, 1, 0, 0, 1, 1, 0, 0, 0],
                     [0, 0, 1, 0, 1, 1, 0, 1, 0],
                     [0, 0, 0, 1, 1, 0, 0, 1, 1],
@@ -76,7 +76,7 @@ class Shape extends Sprite {
                 ]
             },
             {
-                name: 'T', width: 60, height: 60, color: 1, rotations: [
+                name: 'T', width: 60, height: 60, color: 0, rotations: [
                     [0, 1, 0, 1, 1, 1, 0, 0, 0],
                     [0, 1, 0, 0, 1, 1, 0, 1, 0],
                     [0, 0, 0, 1, 1, 1, 0, 1, 0],
@@ -130,26 +130,23 @@ class Shape extends Sprite {
         this.shapeName = name;
         this.rotation = rotation;
         this.shape = this.shapes.find((shape) => shape.name === this.shapeName);
+        // we only use first animation and rotate the sprite for each rotation
         this.setAnimation(`${name}0`);
 
-        if (name === 'O') {
-            this.angle = 0;
+        if (duration) {
+            console.log(this.angle);
+            this.animate('Rotate', {
+                startValue: this.angle,
+                endValue: !rotation ? Math.PI * 2 : this.rotation * (Math.PI / 2),
+                duration: duration,
+                easing: 'easeOutQuad'
+            }).then(() => {
+                if (!rotation) {
+                    this.angle = 0;
+                }
+            });
         } else {
-            if (duration) {
-                console.log(this.angle);
-                this.animate('Rotate', {
-                    startValue: this.angle,
-                    endValue: !rotation ? Math.PI * 2 : this.rotation * (Math.PI / 2),
-                    duration: duration,
-                    easing: 'easeOutQuad'
-                }).then(() => {
-                    if (!rotation) {
-                        this.angle = 0;
-                    }
-                })
-            } else {
-                this.angle = this.rotation * (Math.PI / 2);
-            }
+            this.angle = this.rotation * (Math.PI / 2);
         }
     }
 
@@ -159,7 +156,7 @@ class Shape extends Sprite {
     setRandomShape(animate) {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
-        // const shapeName = this.shapes[3].name,
+        // const shapeName = 'T',
         //     rotation = 0;
 
         console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
@@ -242,8 +239,6 @@ class Shape extends Sprite {
 
         hit = map.checkMatrixForCollision2(buffer, this.shape.width, startX, endX, startY, endY, Tile.TYPE.WALL);
 
-        // if (this.x <= -7)
-        //     debugger;
 
         // if (this.x >= 179)
         //     debugger;

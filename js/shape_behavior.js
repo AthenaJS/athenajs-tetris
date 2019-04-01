@@ -59,7 +59,7 @@ class ShapeBehavior extends Behavior {
             this.startY = sprite.y;
         } else {
             const diff = timestamp - this.startTime;
-            const duration = this.ground ? sprite.data.speed / 8 : sprite.data.speed;
+            const duration = this.ground ? sprite.data.speed / 6 : sprite.data.speed;
 
             if (diff > duration) {
                 // timer reached
@@ -120,8 +120,9 @@ class ShapeBehavior extends Behavior {
             } else {
                 // sprite.y = this.startY + move.y;
             }
-        } else {
+        } else if (!this.ground) {
             this.ground = true;
+            this.startTime = 0;
             console.log('ground');
         }
         // console.log('apres move', sprite.y);

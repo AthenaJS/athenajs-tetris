@@ -8,11 +8,14 @@ export const MAP_ROWS = 22,
   TILE_WIDTH = 20,
   TILE_HEIGHT = 20,
   // tile offsets in the spritesheet
-  MAP_TILES_OFFSET_Y = 454,
+  MAP_TILES_OFFSET_Y = 434,
   WALL_TILE_OFFSET_X = 140,
   BACK_TILE_OFFSET_X = 160,
+  NUM_COLORS = 7,
+  NUM_ROTATIONS = 4,
   // wall tile number
-  WALL_TILE = 8,
+  WALL_TILE = NUM_COLORS * NUM_ROTATIONS,
+  AIR_TILE = WALL_TILE + 1,
   // game width
   TOTAL_WIDTH = 800,
   TOTAL_HEIGHT = 600,
@@ -91,27 +94,31 @@ class Grid extends Scene {
      */
   generateTileSet() {
     // create the list of all tiles for the map
-    const tiles = [
-      {
-        offsetX: WALL_TILE_OFFSET_X,
-        offsetY: MAP_TILES_OFFSET_Y,
-        width: TILE_WIDTH,
-        height: TILE_HEIGHT
-      }
-    ];
+    const tiles = [];
 
-    // add a tile for each color
-    for (let i = 0, offset = 0; i < 7; ++i, offset += TILE_WIDTH) {
-      tiles.push({
-        offsetX: offset,
-        offsetY: MAP_TILES_OFFSET_Y,
-        width: TILE_WIDTH,
-        height: TILE_HEIGHT
-      });
+    // add a tile for each color and each rotation
+    for (let row = 0; row < 4; ++row) {
+      for (let i = 0, offset = 0; i < 7; ++i, offset += TILE_WIDTH) {
+        tiles.push({
+          offsetX: offset,
+          offsetY: MAP_TILES_OFFSET_Y + row * (TILE_HEIGHT + 2),
+          width: TILE_WIDTH,
+          height: TILE_HEIGHT
+        });
+      }
     }
 
+    // WALL
     tiles.push({
       offsetX: BACK_TILE_OFFSET_X,
+      offsetY: MAP_TILES_OFFSET_Y,
+      width: TILE_WIDTH,
+      height: TILE_HEIGHT
+    });
+
+    // Air (background)
+    tiles.push({
+      offsetX: WALL_TILE_OFFSET_X,
       offsetY: MAP_TILES_OFFSET_Y,
       width: TILE_WIDTH,
       height: TILE_HEIGHT
@@ -143,7 +150,7 @@ class Grid extends Scene {
   resetMap() {
     const map = this.map;
 
-    map.clear(0, Tile.TYPE.AIR);
+    map.clear(AIR_TILE, Tile.TYPE.AIR);
 
     // set map tiles around the playground as wall tiles
     for (let i = 0; i < map.numRows; ++i) {
@@ -304,6 +311,7 @@ class Grid extends Scene {
         ).then(() => {
           // TODO: test that first matrix element inside shape is
           // in the map, then and only then, add a new shape
+          // 
           shape.setShape(nextShape.shapeName, nextShape.rotation);
           nextShape.setRandomShape();
 
@@ -338,7 +346,7 @@ class Grid extends Scene {
     for (let j = 0; j < rows; ++j) {
       for (let i = 0; i < cols; ++i) {
         if (buffer[j * cols + i]) {
-          map.updateTile(pos.x + i, pos.y + j, data.color, Tile.TYPE.WALL);
+          map.updateTile(pos.x + i, pos.y + j, (NUM_COLORS * shape.rotation) + data.color, Tile.TYPE.WALL);
         }
       }
     }
@@ -434,10 +442,10 @@ class Grid extends Scene {
       // add wall at each side of the new lines
       for (let i = 0; i < height; ++i) {
         for (let j = 0; j < map.numCols; ++j) {
-          map.updateTile(j, i, 0, Tile.TYPE.AIR);
+          map.updateTile(j, i, AIR_TILE, Tile.TYPE.AIR);
         }
-        map.updateTile(0, i, 8, Tile.TYPE.WALL);
-        map.updateTile(map.numCols - 1, i, 8, Tile.TYPE.WALL);
+        map.updateTile(0, i, WALL_TILE, Tile.TYPE.WALL);
+        map.updateTile(map.numCols - 1, i, WALL_TILE, Tile.TYPE.WALL);
       }
 
       Dom('.athena-game').addClass('shake-vertical shake-constant');
