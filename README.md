@@ -21,7 +21,7 @@ This will install dependencies, build athenajs-tetris and start a development se
 
 ## Credits
 
- - Sounds: The Essential Retro Video Game Sound Effects Collection by [Juhani Junkala](juhani.junkala@musician.org)
+ - Sounds: The Essential Retro Video Game Sound Effects Collection by [Juhani Junkala](mailto:juhani.junkala@musician.org)
 
 ## License
 

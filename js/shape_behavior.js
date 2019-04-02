@@ -1,7 +1,7 @@
 import { Behavior, InputManager as IM, AudioManager as AM } from 'athenajs';
 import { TILE_HEIGHT } from './grid';
 
-const HORIZONTAL_MOVE_DURATION = 80;
+const DOWN_SPEED = 6;
 const DOWN = 1,
     LEFT = 2,
     RIGHT = 3;
@@ -102,7 +102,7 @@ class ShapeBehavior extends Behavior {
 
     moveShapeDown(duration, force) {
         const sprite = this.sprite;
-        const pixels = force ? 4 : ((duration * TILE_HEIGHT) / sprite.data.speed) - (sprite.y - this.startY);
+        const pixels = force ? DOWN_SPEED : ((duration * TILE_HEIGHT) / sprite.data.speed) - (sprite.y - this.startY);
         // console.log('moveShapeDown', pixels);
         const oldx = sprite.x,
             oldy = sprite.y;
@@ -157,7 +157,6 @@ class ShapeBehavior extends Behavior {
             this.timerEnabled = !this.timerEnabled;
             return;
         }
-
 
         if (this.timerEnabled) {
             this.timer(timestamp);

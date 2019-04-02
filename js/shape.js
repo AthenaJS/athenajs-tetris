@@ -156,8 +156,8 @@ class Shape extends Sprite {
     setRandomShape(animate) {
         const shapeName = this.shapes[Math.random() * 7 | 0].name,
             rotation = Math.random() * 4 | 0;
-        // const shapeName = 'T',
-        //     rotation = 0;
+        // const shapeName = 'I',
+        //     rotation = 1;
 
         console.log(`[Shape] setRandomShape() - ${this.type}, ${shapeName}`);
 

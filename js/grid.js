@@ -1,4 +1,4 @@
-import { Scene, Map, Tile, Dom, SimpleText, AudioManager as AM, Deferred } from "athenajs";
+import { Scene, Map, Tile, Dom, SimpleText, AudioManager as AM, Deferred, DrawableImage } from "athenajs";
 import Shape from "./shape";
 import FlashLines from "./flash_lines";
 
@@ -20,7 +20,7 @@ export const MAP_ROWS = 22,
   TOTAL_WIDTH = 800,
   TOTAL_HEIGHT = 600,
   // speed (drop delay) at start
-  START_TIMING = 1800,
+  START_TIMING = 1400,
   // speed increase at each level
   LEVEL_TIMING = 55;
 
@@ -49,14 +49,24 @@ class Grid extends Scene {
           src: "sound/level.mp3"
         },
         {
-          id: "lines",
+          id: "lines1",
           type: "audio",
-          src: "sound/lines.mp3"
+          src: "sound/lines1.mp3"
         },
         {
-          id: "lines_tetris",
+          id: "lines2",
           type: "audio",
-          src: "sound/lines_tetris.mp3"
+          src: "sound/lines2.mp3"
+        },
+        {
+          id: "lines3",
+          type: "audio",
+          src: "sound/lines3.mp3"
+        },
+        {
+          id: "lines4",
+          type: "audio",
+          src: "sound/lines4.mp3"
         },
         {
           id: "move",
@@ -222,6 +232,11 @@ class Grid extends Scene {
       width: TILE_WIDTH * (MAP_COLS - 2),
       lineHeight: TILE_HEIGHT
     });
+
+    this.image = new DrawableImage('image', {
+      width: TILE_WIDTH * MAP_COLS,
+      height: TILE_HEIGHT * MAP_ROWS
+    });
   }
 
   /**
@@ -247,6 +262,7 @@ class Grid extends Scene {
     );
 
     map.addObject(this.flashLines);
+    map.addObject(this.image);
     map.addObject(this.shape);
 
 
@@ -274,6 +290,7 @@ class Grid extends Scene {
     this.shape.setRandomShape();
     this.shape.moveToTop();
     this.nextShape.setRandomShape();
+
     this.linesString.setText("Lines: " + this.lines);
     this.scoreString.setText("Score: " + this.score);
     this.levelString.setText("Level: " + this.level);
@@ -346,10 +363,16 @@ class Grid extends Scene {
     for (let j = 0; j < rows; ++j) {
       for (let i = 0; i < cols; ++i) {
         if (buffer[j * cols + i]) {
-          map.updateTile(pos.x + i, pos.y + j, (NUM_COLORS * shape.rotation) + data.color, Tile.TYPE.WALL);
+          map.updateTile(pos.x + i, pos.y + j, AIR_TILE, Tile.TYPE.WALL);
         }
       }
     }
+
+
+    // set correction rotation first
+    shape.angle = 0;
+    shape.setAnimation(`${shape.shapeName}${shape.rotation}`);
+    this.image.putDrawable(shape, shape.x, shape.y);
   }
 
   /**
@@ -408,11 +431,15 @@ class Grid extends Scene {
     this.linesString.setText("Lines: " + this.lines);
     this.scoreString.setText("Score: " + this.score);
 
-    if (lines === 4) {
-      AM.play("lines_tetris");
-    } else {
-      AM.play("lines");
-    }
+    AM.play("lines" + lines);
+  }
+
+  updateImageDrawable(line) {
+    const width = MAP_COLS * TILE_WIDTH,
+      height = line * TILE_HEIGHT,
+      y = TILE_HEIGHT;
+
+    this.image.moveRect(0, 0, width, height, 0, y, width, height);
   }
 
   /**
@@ -437,6 +464,7 @@ class Grid extends Scene {
       // shift the map for each line to remove
       for (let i = 0; i < lines.length; ++i) {
         map.shift(lines[i] + i, 1);
+        this.updateImageDrawable(lines[i] + i);
       }
 
       // add wall at each side of the new lines
@@ -448,10 +476,12 @@ class Grid extends Scene {
         map.updateTile(map.numCols - 1, i, WALL_TILE, Tile.TYPE.WALL);
       }
 
-      Dom('.athena-game').addClass('shake-vertical shake-constant');
-      setTimeout(() => {
-        Dom('.athena-game').removeClass('shake-vertical shake-constant');
-      }, 300);
+      Dom('.athena-game').removeClass('shake1 shake2 shake3 shake4');
+      console.log(Dom('.athena-game')[0].classList);
+      Dom('.athena-game').addClass('shake' + lines.length);
+      // setTimeout(() => {
+      //   Dom('.athena-game').removeClass('shake1');
+      // }, 300);
 
       this.increaseScore(lines.length);
       this.updateLevel();
